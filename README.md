@@ -209,6 +209,6 @@ You are free to use, deploy, and extend it internally. But if you offer it as a 
 
 <div align="center">
 
-*propraetor v0.1.0 · © 2025 shurjo*
+*propraetor v0.1.0 · © 2026 shurjo*
 
 </div>
