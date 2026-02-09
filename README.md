@@ -1,5 +1,5 @@
 <div align="left">
-<img width="2099" height="300" alt="Frame 1" src="https://github.com/user-attachments/assets/4d2ababa-cf1d-4109-843f-d12e046b75ff" />
+<img width="2099" height="300" alt="Frame 1" src="wordmark.png" />
 
 **/pɹəʊˈpɹiːtɔː/** · Latin *propraetor*, a magistrate sent to govern a province.
 
@@ -37,29 +37,29 @@ stack = {
 ### Dashboard
 At-a-glance important statistics. Financial snapshots, warranty alerts, activity feed, and asset distribution charts:
   
-<img width="1425" height="1397" alt="image" src="https://github.com/user-attachments/assets/e4e2fd0d-fc95-466a-b59f-d895b6b2ae35" />
+<img width="1425" height="1397" alt="image" src="images/dash.png" />
 
 ### Assets
 **Full lifecycle tracking from requisition -> purchase -> active -> disposal**. Add per-asset **JSON attributes** that automatically populate the details page.  
 **'Components'** can also be assigned to Assets if more details are desired:
   
-<img width="1387" height="316" alt="image" src="https://github.com/user-attachments/assets/d3a6208e-e25d-4009-b651-20843eecd589" />
+<img width="1387" height="316" alt="image" src="images/attrs.png" />
 
 ### Inline modal creation
 Create foreign key entries on the fly from any form via modal dialogs. No context-switching required:  
   
-<img width="990" height="908" alt="image" src="https://github.com/user-attachments/assets/3f923889-d4cd-482e-890a-2ae0ec9febd2" />
+<img width="990" height="908" alt="image" src="images/inline.png" />
 
 ### Spare Parts
 Automatically populate the spare parts inventory whenever components are marked as 'spare' and set stock minimums and warnings: 
   
-<img width="1407" height="1194" alt="image" src="https://github.com/user-attachments/assets/690fed7f-db68-40d0-bcdf-32fff7defe9a" />
+<img width="1407" height="1194" alt="image" src="images/spare.png" />
 
 ### Invoices
 Vendor invoices with line items, payment tracking, and automatic asset/component creation on receive:
 
-<img width="1412" height="1199" alt="image" src="https://github.com/user-attachments/assets/6a57a24a-4039-4c8d-9e13-a5b76ed42b09" />
-<img width="1412" height="1199" alt="image" src="https://github.com/user-attachments/assets/311c6eef-fdf2-47fa-a75f-a2f5fea4f4be" />
+<img width="1412" height="1199" alt="image" src="images/invoice1.png" />
+<img width="1412" height="1199" alt="image" src="images/invoice2.png" />
 
 ### Other features
 - **Configurable tagging** — asset and component tags auto-generated from `tag_prefixes.toml` with a department → company → global resolution hierarchy. Changes take effect on the next tag generation; no restart required. See below for more. 
