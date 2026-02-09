@@ -1,0 +1,85 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit requisition {{ object.requisition_number }}.{% else %}new requisition.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:requisition_list' %}">requisitions</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:requisition_details' object.id %}">{{ object.requisition_number }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_requisition{% else %}new_requisition{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Requisition Details</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.requisition_number %}
+                    {% include 'partials/form_field.html' with field=form.company %}
+                    {% include 'partials/form_field.html' with field=form.department %}
+                    {% include 'partials/form_field.html' with field=form.requested_by %}
+                    {% include 'partials/form_field.html' with field=form.approved_by %}
+                    {% include 'partials/form_field.html' with field=form.requisition_date %}
+                    {% include 'partials/form_field.html' with field=form.priority %}
+                    {% include 'partials/form_field.html' with field=form.status %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Specifications</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.specifications full_width=True help="Optional JSON or freeform specifications for the request" %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Notes</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.notes full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:requisition_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:requisition_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_requisition{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

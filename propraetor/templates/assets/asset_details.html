@@ -1,0 +1,406 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+
+{% block title %}asset {{ asset.asset_tag }}.{% endblock %}
+
+{% block content %}
+    <div class="detail-breadcrumb">
+        <a href="{% url 'propraetor:assets_list' %}">assets</a>
+        <span> / </span>
+        <span>{{ asset.asset_tag }}</span>
+    </div>
+
+    <!-- Asset Header -->
+    <div class="detail-header">
+        <div>
+            <h1 class="detail-title">{{ asset.asset_tag }}</h1>
+            <div class="detail-meta">
+                <span class="status-badge status-{{ asset.status }}">{{ asset.status }}</span>
+                <span class="text-muted">{{ asset.asset_model.category }}</span>
+                {% if asset.manufacturer and asset.model_name %}
+                    <span class="text-muted">{{ asset.manufacturer }} {{ asset.model_name }}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="detail-header-actions">
+            <a href="{% url 'propraetor:asset_edit' asset.id %}" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                edit
+            </a>
+            <button
+                class="btn btn-secondary"
+                hx-delete="{% url 'propraetor:asset_delete' asset.id %}"
+                hx-confirm="Are you sure you want to delete {{ asset.asset_tag }}?" data-confirm-message="Are you sure you want to delete {{ asset.asset_tag }}?"
+            >
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                delete
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="detail-grid">
+        <!-- Left Column -->
+        <div class="detail-column">
+            <!-- Basic Information -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Basic Information</h2>
+                <div class="detail-card-content">
+                    <div class="field-group">
+                        <label>asset_tag</label>
+                        <div class="value">{{ asset.asset_tag }}</div>
+                    </div>
+                    <div class="field-group">
+                        <label>asset_category</label>
+                        <div class="value">{{ asset.asset_model.category }}</div>
+                    </div>
+                    {% if asset.manufacturer %}
+                    <div class="field-group">
+                        <label>manufacturer</label>
+                        <div class="value">{{ asset.manufacturer }}</div>
+                    </div>
+                    {% endif %}
+                    {% if asset.model_name %}
+                    <div class="field-group">
+                        <label>model</label>
+                        <div class="value">{{ asset.model_name }}</div>
+                    </div>
+                    {% endif %}
+                    {% if asset.asset_model.model_number %}
+                    <div class="field-group">
+                        <label>model_number</label>
+                        <div class="value">{{ asset.asset_model.model_number }}</div>
+                    </div>
+                    {% endif %}
+                    {% if asset.serial_number %}
+                    <div class="field-group">
+                        <label>serial_number</label>
+                        <div class="value text-sm text-break">{{ asset.serial_number }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Financial Information -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Financial Information</h2>
+                <div class="detail-card-content">
+                    <div class="field-group">
+                        <label>purchase_date</label>
+                        <div class="value">
+                            {% if asset.purchase_date %}
+                                {{ asset.purchase_date|date:"Y-m-d" }}
+                            {% else %}
+                                <span class="text-muted">not_set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>purchase_cost</label>
+                        <div class="value">
+                            {% if asset.purchase_cost %}
+                                ${{ asset.purchase_cost|floatformat:2 }}
+                            {% else %}
+                                <span class="text-muted">not_set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>warranty_expiry</label>
+                        <div class="value">
+                            {% if asset.warranty_expiry_date %}
+                                {{ asset.warranty_expiry_date|date:"Y-m-d" }}
+                                {% if asset.warranty_expiry_date < today %}
+                                    <span class="text-danger"> (expired)</span>
+                                {% else %}
+                                    <span class="text-success"> (active)</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">not_set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if asset.invoice %}
+                    <div class="field-group">
+                        <label>invoice</label>
+                        <div class="value">
+                            <a href="{% url 'propraetor:invoice_details' asset.invoice.id %}" class="link">
+                                {{ asset.invoice.invoice_number }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Custom Attributes -->
+            {% if asset.attributes %}
+            <section class="detail-card">
+                <h2 class="detail-card-title">Custom Attributes</h2>
+                <div class="detail-card-content">
+                    {% for key, value in asset.attributes.items %}
+                    <div class="field-group">
+                        <label>{{ key }}</label>
+                        <div class="value">{{ value }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Notes -->
+            {% if asset.notes %}
+            <section class="detail-card">
+                <h2 class="detail-card-title">Notes</h2>
+                <div class="detail-card-content">
+                    <div class="notes-content">{{ asset.notes }}</div>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+
+        <!-- Right Column -->
+        <div class="detail-column">
+            <!-- Assignment & Location -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Assignment & Location</h2>
+                <div class="detail-card-content">
+                    <div class="field-group">
+                        <label>status</label>
+                        <div class="value">
+                            <span class="status-badge status-{{ asset.status }}">{{ asset.get_status_display }}</span>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>assigned_to</label>
+                        <div class="value">
+                            {% if asset.assigned_to %}
+                                <a href="{% url 'propraetor:user_details' asset.assigned_to.id %}" class="link">
+                                    {{ asset.assigned_to }}
+                                </a>
+                                {% if asset.assigned_to.email %}
+                                    <div class="text-muted text-sm mt-tiny">{{ asset.assigned_to.email }}</div>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">unassigned</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>location</label>
+                        <div class="value">
+                            {% if asset.location %}
+                                {{ asset.location.name }}
+                            {% else %}
+                                <span class="text-muted">not_set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if asset.company %}
+                    <div class="field-group">
+                        <label>company</label>
+                        <div class="value">{{ asset.company.name }}</div>
+                    </div>
+                    {% endif %}
+                    {% if asset.requisition %}
+                    <div class="field-group">
+                        <label>requisition</label>
+                        <div class="value">
+                            <a href="{% url 'propraetor:requisition_details' asset.requisition.id %}" class="link">
+                                {{ asset.requisition.requisition_number }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if user.is_authenticated %}
+                <!-- Assignment Actions -->
+                <div class="action-separator-flex">
+                    {% if asset.assigned_to %}
+                        <button
+                            class="btn btn-secondary"
+                            hx-post="{% url 'propraetor:asset_unassign' asset.id %}"
+                            hx-confirm="Unassign from {{ asset.assigned_to }}?" data-confirm-message="Unassign from {{ asset.assigned_to }}?"
+                        >
+                            unassign
+                        </button>
+                    {% else %}
+                        <a href="{% url 'propraetor:asset_edit' asset.id %}" class="btn btn-primary">
+                            assign_to_employee
+                        </a>
+                    {% endif %}
+                    <button
+                        class="btn btn-secondary"
+                        hx-get="{% url 'propraetor:asset_transfer_location' asset.id %}"
+                        hx-target="#transfer-location-modal"
+                        hx-swap="innerHTML"
+                    >
+                        transfer_location
+                    </button>
+                </div>
+                {% endif %}
+            </section>
+
+            <!-- Transfer Location Modal Container -->
+            <div id="transfer-location-modal"></div>
+
+            <!-- Timeline -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Timeline</h2>
+                <div class="detail-card-content">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">created_at</div>
+                                <div class="timeline-value">{{ asset.created_at|date:"Y-m-d H:i" }}</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">last_updated</div>
+                                <div class="timeline-value">{{ asset.updated_at|date:"Y-m-d H:i" }}</div>
+                            </div>
+                        </div>
+                        {% if asset.purchase_date %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">purchased</div>
+                                <div class="timeline-value">{{ asset.purchase_date|date:"Y-m-d" }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Installed Components -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Installed Components</h2>
+                <div class="detail-card-content">
+                    {% if installed_components %}
+                        {% for component in installed_components %}
+                        <div class="component-card">
+                            <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px;">
+                                <div>
+                                    <a href="{% url 'propraetor:component_details' component.id %}" class="link" style="font-size: 14px; font-weight: 500;">
+                                        {{ component.component_tag }}
+                                    </a>
+                                    <div style="color: var(--muted-foreground); font-size: 12px; margin-top: 4px;">
+                                        {{ component.component_type.type_name }}
+                                    </div>
+                                </div>
+                                <span class="status-badge status-{{ component.status }}" style="font-size: 11px;">
+                                    {{ component.get_status_display }}
+                                </span>
+                            </div>
+                            {% if component.manufacturer or component.model %}
+                            <div style="color: var(--foreground); font-size: 13px; margin-bottom: 4px;">
+                                {% if component.manufacturer %}{{ component.manufacturer }}{% endif %}
+                                {% if component.manufacturer and component.model %} {% endif %}
+                                {% if component.model %}{{ component.model }}{% endif %}
+                            </div>
+                            {% endif %}
+                            {% if component.serial_number %}
+                            <div style="color: var(--muted-foreground); font-size: 11px; font-family: 'JetBrains Mono', monospace;">
+                                s/n: {{ component.serial_number }}
+                            </div>
+                            {% endif %}
+                            {% if component.installation_date %}
+                            <div style="color: var(--muted-foreground); font-size: 11px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(123, 163, 208, 0.1);">
+                                installed: {{ component.installation_date|date:"Y-m-d" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-muted" style="text-align: center; padding: 20px;">
+                            <svg style="width: 40px; height: 40px; margin: 0 auto 12px; opacity: 0.3;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                            </svg>
+                            <div>no components installed</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            {% if user.is_authenticated %}
+            <!-- Quick Actions -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Quick Actions</h2>
+                <div class="detail-card-content">
+                    <div class="action-stack">
+                        <a href="{% url 'propraetor:maintenance_create' %}?asset={{ asset.id }}" class="btn btn-secondary btn-action">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            log_maintenance
+                        </a>
+
+                        {% if asset.status != "active" %}
+                        <form method="post" action="{% url 'propraetor:asset_change_status' asset.id %}" class="status-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="active">
+                            <button type="submit" class="btn btn-secondary btn-action btn-full">
+                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                set_active
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {% if asset.status != "in_repair" %}
+                        <form method="post" action="{% url 'propraetor:asset_change_status' asset.id %}" class="status-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="in_repair">
+                            <button type="submit" class="btn btn-secondary btn-action btn-full">
+                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                set_in_repair
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {% if asset.status != "retired" %}
+                        <form method="post" action="{% url 'propraetor:asset_change_status' asset.id %}" class="status-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="retired">
+                            <button type="submit" class="btn btn-secondary btn-action btn-full">
+                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                                </svg>
+                                set_retired
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <button
+                            class="btn btn-secondary btn-action"
+                            hx-post="{% url 'propraetor:asset_duplicate' asset.id %}"
+                            hx-confirm="Duplicate asset {{ asset.asset_tag }}?" data-confirm-message="Duplicate asset {{ asset.asset_tag }}?"
+                        >
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            duplicate_asset
+                        </button>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+    </div>
+<br>
+{% endblock %}

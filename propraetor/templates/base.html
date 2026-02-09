@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+{% load static %}
+{% load nav_tags %}
+{% load django_htmx %}
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}propraetor.{% endblock %}</title>
+
+    <!-- HTMX -->
+    <script src="{% static 'js/htmx.min.js' %}" defer></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link href="{% static 'css/colorscheme.css' %}" rel="stylesheet">
+    <link href="{% static 'css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'css/components.css' %}" rel="stylesheet">
+    <link href="{% static 'css/tables.css' %}" rel="stylesheet">
+    <link href="{% static 'css/colwidth.css' %}" rel="stylesheet">
+    <link href="{% static 'css/forms.css' %}" rel="stylesheet">
+    <link href="{% static 'css/details.css' %}" rel="stylesheet">
+    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+    <link href="{% static 'css/modal.css' %}" rel="stylesheet">
+    <script src="{% static 'js/searchable-select.js' %}" defer></script>
+    <script src="{% static 'js/inline-create.js' %}" defer></script>
+    {% block extra_head %}{% endblock %}
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icons/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'icons/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
+
+</head>
+<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'
+      hx-boost="true"
+      hx-target="#content"
+      hx-swap="outerHTML transition:true">
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="header-left">
+                    <a href="{% url 'propraetor:dashboard' %}" class="brand-link"><h1>&gt; propraetor.</h1></a>
+                    <nav id="main-nav">
+                        {% for item in navigation %}
+                            {% if item.type == 'link' %}
+                                <a href="{{ item.href }}"
+                                   class="{% active_path item.active_paths|join:',' %}">
+                                    {{ item.label }}
+                                </a>
+                            {% elif item.type == 'dropdown' %}
+                                <div class="nav-dropdown">
+                                    <button class="nav-dropdown-toggle {% active_path item.active_paths|join:',' %}"
+                                            aria-expanded="false">
+                                        {{ item.label }}
+                                        <svg class="nav-caret" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <div class="nav-dropdown-menu">
+                                        {% for link in item.items %}
+                                            <a href="{{ link.href }}"
+                                               class="{% active_path link.active_paths|join:',' %}">
+                                                {{ link.label }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if user.is_authenticated %}
+                            <span class="nav-session">
+                                session: {{ request.user.username }} •
+                                <form method="post" action="{% url 'logout' %}" class="inline-form" hx-boost="false">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-link-danger">logout</button>
+                                </form>
+                            </span>
+                        {% else %}
+                            <span class="nav-session">
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="link" hx-boost="false">login</a>
+                            </span>
+                        {% endif %}
+                    </nav>
+                </div>
+                <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <div class="header-right">
+                    {% if user.is_authenticated %}
+                        session: {{ request.user.username }} •
+                        <form method="post" action="{% url 'logout' %}" class="inline-form" hx-boost="false">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-link-danger">logout</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="link" hx-boost="false">login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Messages -->
+    {% if messages %}
+    <div class="toast-container" id="toast-container">
+        {% for message in messages %}
+        <div class="toast toast-{{ message.tags }}" role="alert">
+            <div class="toast-content">
+                <span class="toast-icon">
+                    {% if 'success' in message.tags %}&#10003;{% elif 'error' in message.tags %}&#10007;{% elif 'warning' in message.tags %}&#9888;{% else %}&#8505;{% endif %}
+                </span>
+                <span class="toast-text">{{ message }}</span>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()" aria-label="Dismiss">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="container {% block main_extra_class %}{% endblock %}" id="content">
+        {% block content %}
+        {% endblock %}
+
+        <!-- Footer -->
+    </main>
+    <footer>
+        <p>// propraetor v0.0.2 • &copy; {% now 'Y' %} shurjo</p>
+    </footer>
+
+    <!-- Confirmation Modal -->
+    <div class="confirm-overlay" id="confirm-overlay" aria-hidden="true">
+        <div class="confirm-modal" role="dialog" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+            <div class="confirm-header">
+                <div class="confirm-icon-wrap">
+                    <svg class="confirm-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="confirm-title" id="confirm-title">confirm action</h3>
+                <button class="confirm-close" id="confirm-close-x" aria-label="Close">&times;</button>
+            </div>
+            <div class="confirm-body" id="confirm-body">
+                Are you sure?
+            </div>
+            <div class="confirm-footer">
+                <button class="btn btn-ghost" id="confirm-cancel">cancel</button>
+                <button class="btn btn-danger" id="confirm-proceed">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    confirm
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/modal.js' %}" defer></script>
+    <script src="{% static 'js/toast.js' %}" defer></script>
+    <script src="{% static 'js/navigation.js' %}" defer></script>    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

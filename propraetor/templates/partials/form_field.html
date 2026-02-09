@@ -1,0 +1,19 @@
+{% comment %}
+Reusable form field renderer.
+Usage: {% include 'partials/form_field.html' with field=form.field_name %}
+Optional: full_width=True to span both grid columns
+Optional: help="Help text string"
+{% endcomment %}
+<div class="form-group{% if full_width %} full-width{% endif %}">
+    <label for="{{ field.id_for_label }}">
+        {{ field.label }}{% if field.field.required %}<span class="required-mark">*</span>{% endif %}
+    </label>
+    {{ field }}
+    {% if help %}<span class="form-help">{{ help }}</span>{% endif %}
+    {% if field.help_text and not help %}<span class="form-help">{{ field.help_text }}</span>{% endif %}
+    {% if field.errors %}
+        {% for error in field.errors %}
+            <span class="form-error">> {{ error }}</span>
+        {% endfor %}
+    {% endif %}
+</div>

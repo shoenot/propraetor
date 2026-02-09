@@ -1,0 +1,74 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit maintenance record.{% else %}new maintenance record.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:maintenance_list' %}">maintenance</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:maintenance_details' object.id %}">{{ object.asset.asset_tag }} - {{ object.get_maintenance_type_display }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_maintenance_record{% else %}new_maintenance_record{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Maintenance Details</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.asset %}
+                    {% include 'partials/form_field.html' with field=form.maintenance_type %}
+                    {% include 'partials/form_field.html' with field=form.maintenance_date %}
+                    {% include 'partials/form_field.html' with field=form.performed_by %}
+                    {% include 'partials/form_field.html' with field=form.cost %}
+                    {% include 'partials/form_field.html' with field=form.next_maintenance_date %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Description</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.description full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:maintenance_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:maintenance_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_record{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

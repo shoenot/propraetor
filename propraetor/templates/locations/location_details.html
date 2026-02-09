@@ -1,0 +1,215 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+{% block title %}location {{ location.name }}.{% endblock %}
+{% block content %}
+    <!-- Breadcrumb -->
+    <div class="detail-breadcrumb">
+        <a href="{% url 'propraetor:locations_list' %}">locations</a>
+        <span> / </span>
+        <span>{{ location.name }}</span>
+    </div>
+
+    <!-- Location Header -->
+    <div class="detail-header">
+        <div>
+            <h1 class="detail-title">{{ location.name }}</h1>
+            <div class="detail-meta">
+                {% if location.city and location.country %}
+                    <span class="text-muted">{{ location.city }}, {{ location.country }}</span>
+                {% elif location.city %}
+                    <span class="text-muted">{{ location.city }}</span>
+                {% elif location.country %}
+                    <span class="text-muted">{{ location.country }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="detail-header-actions">
+            <a href="{% url 'propraetor:location_edit' location.id %}" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                edit
+            </a>
+            <button 
+                class="btn btn-secondary"
+                hx-delete="{% url 'propraetor:location_delete' location.id %}"
+                hx-confirm="Are you sure you want to delete {{ location.name }}?" data-confirm-message="Are you sure you want to delete {{ location.name }}?"
+            >
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                delete
+            </button>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <!-- Left Column -->
+        <div class="detail-column">
+            <!-- Location Information -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Location Information</h2>
+                <div class="detail-card-content">
+                    <div class="field-group">
+                        <label>name</label>
+                        <div class="value">{{ location.name }}</div>
+                    </div>
+                    {% if location.address %}
+                    <div class="field-group">
+                        <label>address</label>
+                        <div class="value">{{ location.address }}</div>
+                    </div>
+                    {% endif %}
+                    {% if location.city %}
+                    <div class="field-group">
+                        <label>city</label>
+                        <div class="value">{{ location.city }}</div>
+                    </div>
+                    {% endif %}
+                    {% if location.zip %}
+                    <div class="field-group">
+                        <label>zip_code</label>
+                        <div class="value">{{ location.zip }}</div>
+                    </div>
+                    {% endif %}
+                    {% if location.country %}
+                    <div class="field-group">
+                        <label>country</label>
+                        <div class="value">{{ location.country }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Statistics -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Statistics</h2>
+                <div class="detail-card-content">
+                    <div class="field-group">
+                        <label>total_assets</label>
+                        <div class="value">{{ location.assets.count }}</div>
+                    </div>
+                    <div class="field-group">
+                        <label>total_employees</label>
+                        <div class="value">{{ location.employees.count }}</div>
+                    </div>
+                    <div class="field-group">
+                        <label>default_for_departments</label>
+                        <div class="value">{{ location.default_for_departments.count }}</div>
+                    </div>
+                    <div class="field-group">
+                        <label>spare_parts</label>
+                        <div class="value">{{ location.spare_parts.count }}</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Timeline -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Timeline</h2>
+                <div class="detail-card-content">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">created_at</div>
+                                <div class="timeline-value">{{ location.created_at|date:"Y-m-d H:i" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column -->
+        <div class="detail-column">
+            <!-- Assets at Location -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Assets at Location ({{ location.assets.count }})</h2>
+                <div class="detail-card-content">
+                    {% if location.assets.exists %}
+                        <div class="list-items">
+                            {% for asset in location.assets.all|slice:":5" %}
+                            <div class="list-item">
+                                <div>
+                                    <a href="{% url 'propraetor:asset_details' asset.id %}" class="link">{{ asset.asset_tag }}</a>
+                                    <div class="text-muted text-sm">
+                                        {{ asset.manufacturer|default:"" }} {{ asset.model|default:"" }}
+                                    </div>
+                                </div>
+                                <span class="status-badge status-{{ asset.status }}">{{ asset.get_status_display }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if location.assets.count > 5 %}
+                            <a href="{% url 'propraetor:assets_list' %}?location={{ location.id }}" class="btn btn-secondary btn-view-all">
+                                view_all_assets
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">no assets at this location</span>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Employees at Location -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Employees at Location ({{ location.employees.count }})</h2>
+                <div class="detail-card-content">
+                    {% if location.employees.exists %}
+                        <div class="list-items">
+                            {% for employee in location.employees.all|slice:":5" %}
+                            <div class="list-item">
+                                <div>
+                                    <a href="{% url 'propraetor:user_details' employee.id %}" class="link">{{ employee.name }}</a>
+                                    {% if employee.position %}
+                                        <div class="text-muted text-sm">{{ employee.position }}</div>
+                                    {% endif %}
+                                </div>
+                                <span class="status-badge status-{{ employee.status }}">{{ employee.get_status_display }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if location.employees.count > 5 %}
+                            <a href="{% url 'propraetor:users_list' %}?location={{ location.id }}" class="btn btn-secondary btn-view-all">
+                                view_all_employees
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">no employees at this location</span>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Spare Parts Inventory -->
+            {% if location.spare_parts.exists %}
+            <section class="detail-card">
+                <h2 class="detail-card-title">Spare Parts Inventory</h2>
+                <div class="detail-card-content">
+                    <div class="list-items">
+                        {% for spare in location.spare_parts.all|slice:":5" %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:spare_part_details' spare.id %}" class="link">{{ spare.component_type.type_name }}</a>
+                                <div class="text-muted text-sm">
+                                    {{ spare.manufacturer|default:"Generic" }} - {{ spare.specifications|default:"" }}
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="fw-medium">{{ spare.quantity_available }}</div>
+                                {% if spare.needs_restock %}
+                                    <div class="text-danger text-xs">low_stock</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'propraetor:spare_parts_list' %}?location={{ location.id }}" class="btn btn-secondary btn-view-all">
+                        view_all_spare_parts
+                    </a>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

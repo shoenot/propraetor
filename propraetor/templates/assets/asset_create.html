@@ -1,0 +1,105 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit asset {{ object.asset_tag }}.{% else %}new asset.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:assets_list' %}">assets</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:asset_details' object.id %}">{{ object.asset_tag }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_asset{% else %}new_asset{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Identification</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.company %}
+                    {% include 'partials/form_field.html' with field=form.asset_tag %}
+                    {% include 'partials/form_field.html' with field=form.asset_model %}
+                    {% include 'partials/form_field.html' with field=form.serial_number %}
+                    {% include 'partials/form_field.html' with field=form.status %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Financial Information</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.purchase_date %}
+                    {% include 'partials/form_field.html' with field=form.purchase_cost %}
+                    {% include 'partials/form_field.html' with field=form.warranty_expiry_date %}
+                    {% include 'partials/form_field.html' with field=form.invoice %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Assignment & Location</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.assigned_to help="Assign to an employee OR a location, not both" %}
+                    {% include 'partials/form_field.html' with field=form.location help="Set only if not assigned to an employee" %}
+                    {% include 'partials/form_field.html' with field=form.requisition %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Custom Attributes</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.attributes full_width=True help="JSON object with custom key-value pairs" %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Notes</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.notes full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:asset_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:assets_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_asset{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

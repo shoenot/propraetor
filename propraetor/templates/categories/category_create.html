@@ -1,0 +1,61 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit category {{ object.name }}.{% else %}new category.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:categories_list' %}">categories</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:category_details' object.id %}">{{ object.name }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_category{% else %}new_category{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Category Details</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.name full_width=True %}
+                    {% include 'partials/form_field.html' with field=form.description full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:category_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:categories_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_category{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

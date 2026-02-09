@@ -1,0 +1,281 @@
+{% load static %}
+
+{# CSRF token for bulk action form submissions #}
+{% csrf_token %}
+
+{# Hidden inputs for maintaining state #}
+<input type="hidden" name="sort" value="{{ current_sort }}">
+{% for col in visible_columns %}
+<input type="hidden" name="visible_columns" value="{{ col }}">
+{% endfor %}
+
+{# Table Header with Controls #}
+<div class="table-header">
+    <div class="table-header-left">
+        <h2>{{ table_title|default:"Data Table" }}</h2>
+        <span id="table-count-summary-{{ table_id }}">
+            Showing {{ items.start_index|default:0 }}–{{ items.end_index|default:0 }} of {{ total_count|default:0 }}
+        </span>
+    </div>
+    
+    <div class="table-header-right">
+        {# Column Visibility Toggle #}
+        {% if show_column_toggle %}
+        <div class="column-toggle-container">
+            <button class="btn btn-secondary" 
+                    id="column-toggle-btn-{{ table_id }}"
+                    type="button">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+                </svg>
+                columns
+            </button>
+            <div class="column-toggle-dropdown" id="column-toggle-dropdown-{{ table_id }}" style="display: none;">
+                {% for col in all_columns %}
+                <label class="column-toggle-item">
+                    <input type="checkbox" 
+                           name="visible_columns" 
+                           value="{{ col.key }}"
+                           {% if col.key in visible_columns %}checked{% endif %}
+                           hx-get="{{ rows_url }}"
+                           hx-trigger="change"
+                           hx-target="#table-container-{{ table_id }}"
+                           hx-swap="innerHTML"
+                           hx-include="[name='q'], [name='status'], [name='sort'], [name='visible_columns']:checked">
+                    <span>{{ col.label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {# Bulk Actions #}
+        {% if show_bulk_select and bulk_actions %}
+        <div class="bulk-actions-container" id="bulk-actions-{{ table_id }}" style="display: none;">
+            <span class="bulk-selected-count" id="bulk-count-{{ table_id }}">0 selected</span>
+            {% for action in bulk_actions %}
+            <button class="btn btn-{{ action.variant }}"
+                    data-bulk-action="{{ action.key }}"
+                    data-handler="{{ action.handler }}"
+                    {% if action.confirmation %}data-confirm="{{ action.confirmation }}"{% endif %}>
+                {% if action.icon %}{{ action.icon|safe }}{% endif %}
+                {{ action.label }}
+            </button>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# The Table #}
+<div class="table-wrapper">
+    <table class="data-table" id="{{ table_id }}">
+        <thead>
+            <tr>
+                {% for header in headers %}
+                <th class="{% if header.width %}{{ header.width }}{% endif %} text-{{ header.align|default:'left' }}">
+                    {% if header.type == 'checkbox' %}
+                        {# Select All Checkbox #}
+                        <input type="checkbox" 
+                               id="select-all-{{ table_id }}"
+                               class="select-all-checkbox"
+                               aria-label="Select all">
+                    {% elif header.sortable %}
+                        {# Sortable Column Header #}
+                        <button class="sort-link" 
+                                hx-get="{{ rows_url }}?sort={{ header.next_sort }}" 
+                                hx-target="#table-container-{{ table_id }}" 
+                                hx-swap="innerHTML"
+                                hx-include="[name='q'], [name='status'], [name='visible_columns']:checked">
+                            {{ header.label }}
+                            {% if header.is_current %}
+                                {% if header.direction == 'asc' %}
+                                    <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                    </svg>
+                                {% else %}
+                                    <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                {% endif %}
+                            {% endif %}
+                        </button>
+                    {% else %}
+                        {# Non-sortable Column Header #}
+                        {{ header.label }}
+                    {% endif %}
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+
+        <tbody id="table-body-{{ table_id }}">
+            {% include 'partials/reusable_table_rows.html' %}
+        </tbody>
+    </table>
+</div>
+
+{# Column Toggle Script #}
+<script>
+(function() {
+    const tableId = '{{ table_id }}';
+    const toggleBtn = document.getElementById(`column-toggle-btn-${tableId}`);
+    const dropdown = document.getElementById(`column-toggle-dropdown-${tableId}`);
+    
+    if (toggleBtn && dropdown) {
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target) && e.target !== toggleBtn) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+    
+    {% if show_bulk_select %}
+    // Bulk selection logic
+    const selectAll = document.getElementById(`select-all-${tableId}`);
+    const bulkActions = document.getElementById(`bulk-actions-${tableId}`);
+    const bulkCount = document.getElementById(`bulk-count-${tableId}`);
+    
+    function updateBulkActions() {
+        const checkboxes = document.querySelectorAll(`#${tableId} tbody input[type="checkbox"]:checked`);
+        const count = checkboxes.length;
+        
+        if (bulkActions) {
+            bulkActions.style.display = count > 0 ? 'flex' : 'none';
+        }
+        if (bulkCount) {
+            bulkCount.textContent = `${count} selected`;
+        }
+    }
+    
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll(`#${tableId} tbody input[type="checkbox"]`);
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+            updateBulkActions();
+        });
+    }
+    
+    // Delegate event for row checkboxes
+    document.getElementById(`table-body-${tableId}`).addEventListener('change', function(e) {
+        if (e.target.type === 'checkbox' && e.target.classList.contains('row-select')) {
+            updateBulkActions();
+            
+            // Update select-all state
+            const allCheckboxes = document.querySelectorAll(`#${tableId} tbody input[type="checkbox"]`);
+            const checkedCheckboxes = document.querySelectorAll(`#${tableId} tbody input[type="checkbox"]:checked`);
+            if (selectAll) {
+                selectAll.checked = allCheckboxes.length === checkedCheckboxes.length && allCheckboxes.length > 0;
+            }
+        }
+    });
+    
+    // Helper: submit a bulk action form
+    function submitBulkForm(handler, action, selected) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = handler;
+
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+
+        // Add action
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = action;
+        form.appendChild(actionInput);
+
+        // Add selected IDs
+        selected.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'selected_ids';
+            input.value = id;
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // Bulk action handlers — use styled confirm modal when available
+    document.querySelectorAll(`#bulk-actions-${tableId} [data-bulk-action]`).forEach(btn => {
+        btn.addEventListener('click', function() {
+            const action = this.dataset.bulkAction;
+            const handler = this.dataset.handler;
+            const confirmMsg = this.dataset.confirm;
+            
+            const selected = Array.from(
+                document.querySelectorAll(`#${tableId} tbody input[type="checkbox"]:checked`)
+            ).map(cb => cb.value);
+            
+            if (selected.length === 0) {
+                alert('Please select at least one item');
+                return;
+            }
+            
+            if (confirmMsg) {
+                // Use styled confirmation modal if present in the DOM
+                var overlay = document.getElementById('confirm-overlay');
+                var bodyEl  = document.getElementById('confirm-body');
+                var proceedBtn = document.getElementById('confirm-proceed');
+                var cancelBtn  = document.getElementById('confirm-cancel');
+                var closeX     = document.getElementById('confirm-close-x');
+
+                if (overlay && bodyEl && proceedBtn) {
+                    bodyEl.textContent = confirmMsg;
+                    overlay.classList.add('confirm-visible');
+                    overlay.setAttribute('aria-hidden', 'false');
+                    proceedBtn.focus();
+
+                    // One-time proceed handler for this bulk action
+                    var onProceed = function() {
+                        cleanup();
+                        submitBulkForm(handler, action, selected);
+                    };
+                    var onCancel = function() {
+                        cleanup();
+                    };
+                    var cleanup = function() {
+                        overlay.classList.remove('confirm-visible');
+                        overlay.setAttribute('aria-hidden', 'true');
+                        proceedBtn.removeEventListener('click', onProceed);
+                        if (cancelBtn) cancelBtn.removeEventListener('click', onCancel);
+                        if (closeX) closeX.removeEventListener('click', onCancel);
+                    };
+
+                    proceedBtn.addEventListener('click', onProceed);
+                    if (cancelBtn) cancelBtn.addEventListener('click', onCancel);
+                    if (closeX) closeX.addEventListener('click', onCancel);
+                    return;
+                }
+
+                // Fallback to native confirm if modal not in DOM
+                if (!window.confirm(confirmMsg)) {
+                    return;
+                }
+            }
+            
+            submitBulkForm(handler, action, selected);
+        });
+    });
+    {% endif %}
+})();
+</script>

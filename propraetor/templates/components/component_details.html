@@ -1,0 +1,568 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+
+{% block title %}component {{ component.component_tag }}.{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="detail-breadcrumb">
+    <a href="{% url 'propraetor:components_list' %}">components</a>
+    <span> / </span>
+    <span>{{ component.component_tag }}</span>
+</div>
+
+<!-- Component Header -->
+<div class="detail-header">
+    <div>
+        <h1 class="detail-title">{{ component.component_tag }}</h1>
+        <div class="detail-meta">
+            <span class="status-badge status-{{ component.status }}">{{ component.get_status_display }}</span>
+            <span class="text-muted">{{ component.component_type }}</span>
+            {% if component.manufacturer %}
+                <span class="text-muted">{{ component.manufacturer }}</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="detail-header-actions">
+        <a href="{% url 'propraetor:component_edit' component.id %}" class="btn btn-primary">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            edit
+        </a>
+        <button
+            class="btn btn-secondary"
+            hx-delete="{% url 'propraetor:component_delete' component.id %}"
+            hx-confirm="Are you sure you want to delete this component ({{ component.component_tag }})?" data-confirm-message="Are you sure you want to delete this component ({{ component.component_tag }})?"
+        >
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            delete
+        </button>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <!-- Left Column -->
+    <div class="detail-column">
+        <!-- Basic Information -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Basic Information</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>component_tag</label>
+                    <div class="value fw-semibold">{{ component.component_tag }}</div>
+                </div>
+                <div class="field-group">
+                    <label>component_type</label>
+                    <div class="value">{{ component.component_type }}</div>
+                </div>
+                {% if component.manufacturer %}
+                <div class="field-group">
+                    <label>manufacturer</label>
+                    <div class="value">{{ component.manufacturer }}</div>
+                </div>
+                {% endif %}
+                {% if component.model %}
+                <div class="field-group">
+                    <label>model</label>
+                    <div class="value">{{ component.model }}</div>
+                </div>
+                {% endif %}
+                {% if component.serial_number %}
+                <div class="field-group">
+                    <label>serial_number</label>
+                    <div class="value text-sm text-break">{{ component.serial_number }}</div>
+                </div>
+                {% endif %}
+                {% if component.specifications %}
+                <div class="field-group">
+                    <label>specifications</label>
+                    <div class="value">{{ component.specifications }}</div>
+                </div>
+                {% endif %}
+                <div class="field-group">
+                    <label>status</label>
+                    <div class="value">
+                        <span class="status-badge status-{{ component.status }}">{{ component.get_status_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Financial Information -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Financial Information</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>purchase_date</label>
+                    <div class="value">
+                        {% if component.purchase_date %}
+                            {{ component.purchase_date|date:"Y-m-d" }}
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label>warranty_expiry</label>
+                    <div class="value">
+                        {% if component.warranty_expiry_date %}
+                            {{ component.warranty_expiry_date|date:"Y-m-d" }}
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if component.invoice %}
+                <div class="field-group">
+                    <label>invoice</label>
+                    <div class="value">
+                        <a href="{% url 'propraetor:invoice_details' component.invoice.id %}" class="link">
+                            {{ component.invoice.invoice_number }}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                {% if component.requisition %}
+                <div class="field-group">
+                    <label>requisition</label>
+                    <div class="value">
+                        <a href="{% url 'propraetor:requisition_details' component.requisition.id %}" class="link">
+                            {{ component.requisition.requisition_number }}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Notes -->
+        {% if component.notes %}
+        <section class="detail-card">
+            <h2 class="detail-card-title">Notes</h2>
+            <div class="detail-card-content">
+                <div class="notes-content">{{ component.notes }}</div>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+
+    <!-- Right Column -->
+    <div class="detail-column">
+        <!-- Assignment & Installation -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Assignment & Installation</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>parent_asset</label>
+                    <div class="value">
+                        {% if component.parent_asset %}
+                            <a href="{% url 'propraetor:asset_details' component.parent_asset.id %}" class="link">
+                                {{ component.parent_asset.asset_tag }}
+                            </a>
+                        {% else %}
+                            <span class="text-muted">unassigned</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label>installation_date</label>
+                    <div class="value">
+                        {% if component.installation_date %}
+                            {{ component.installation_date|date:"Y-m-d" }}
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if component.removal_date %}
+                <div class="field-group">
+                    <label>removal_date</label>
+                    <div class="value">{{ component.removal_date|date:"Y-m-d" }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Assignment Actions -->
+            {% if component.parent_asset %}
+            <div class="action-separator-flex">
+                <button
+                    class="btn btn-secondary"
+                    hx-post="{% url 'propraetor:component_unassign' component.id %}"
+                    hx-confirm="Unassign component from {{ component.parent_asset.asset_tag }}?" data-confirm-message="Unassign component from {{ component.parent_asset.asset_tag }}?"
+                >
+                    unassign_from_asset
+                </button>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Timeline -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Timeline</h2>
+            <div class="detail-card-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">created_at</div>
+                            <div class="timeline-value">{{ component.created_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">last_updated</div>
+                            <div class="timeline-value">{{ component.updated_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+                    {% if component.installation_date %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">installed</div>
+                            <div class="timeline-value">{{ component.installation_date|date:"Y-m-d" }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if component.removal_date %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">removed</div>
+                            <div class="timeline-value">{{ component.removal_date|date:"Y-m-d" }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Quick Actions</h2>
+            <div class="detail-card-content">
+                <div class="action-stack">
+                    {% if component.status != "spare" %}
+                    <form method="post" action="{% url 'propraetor:component_change_status' component.id %}" class="status-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="spare">
+                        <button type="submit" class="btn btn-secondary btn-action btn-full">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            mark_as_spare
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if component.status != "installed" %}
+                    <div>
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-action btn-full"
+                            onclick="document.getElementById('install-form').style.display = document.getElementById('install-form').style.display === 'none' ? 'block' : 'none';"
+                        >
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            mark_as_installed
+                        </button>
+                        <form id="install-form" method="post" action="{% url 'propraetor:component_change_status' component.id %}" class="install-form-panel" style="display: none;">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="installed">
+                            <input type="hidden" name="parent_asset" id="parent_asset_value" value="">
+                            <label for="asset-search-input" class="form-group label">
+                                select parent asset<span class="required-mark">*</span>
+                            </label>
+                            <div class="searchable-dropdown mb-dropdown" id="asset-searchable-dropdown">
+                                <input
+                                    type="text"
+                                    class="searchable-dropdown-input"
+                                    id="asset-search-input"
+                                    placeholder="search assets by tag, model, serial, company..."
+                                    autocomplete="off"
+                                >
+                                <button type="button" class="searchable-dropdown-clear" id="asset-search-clear">&times;</button>
+                                <div class="searchable-dropdown-list" id="asset-search-list"></div>
+                            </div>
+                            <div class="flex-row-gap-sm">
+                                <button type="submit" class="btn btn-primary flex-1" id="install-confirm-btn" disabled>
+                                    confirm_install
+                                </button>
+                                <button type="button" class="btn btn-ghost" onclick="document.getElementById('install-form').style.display = 'none';">
+                                    cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    {% if component.status != "failed" %}
+                    <form method="post" action="{% url 'propraetor:component_change_status' component.id %}" class="status-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="failed">
+                        <button type="submit" class="btn btn-secondary btn-action btn-full">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            mark_as_failed
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if component.status != "disposed" %}
+                    <form method="post" action="{% url 'propraetor:component_change_status' component.id %}" class="status-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="disposed">
+                        <button type="submit" class="btn btn-secondary btn-action btn-full">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            mark_as_disposed
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<br>
+
+{{ assets_json|json_script:"assets-data" }}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+    var dataEl = document.getElementById('assets-data');
+    if (!dataEl) return;
+    var assetsData = JSON.parse(dataEl.textContent);
+
+    var dropdown = document.getElementById('asset-searchable-dropdown');
+    if (!dropdown) return;
+
+    var input = document.getElementById('asset-search-input');
+    var list = document.getElementById('asset-search-list');
+    var clearBtn = document.getElementById('asset-search-clear');
+    var hiddenInput = document.getElementById('parent_asset_value');
+    var confirmBtn = document.getElementById('install-confirm-btn');
+    var highlightedIndex = -1;
+    var filteredAssets = [];
+    var selectedId = '';
+
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function highlightMatch(text, query) {
+        if (!query) return escapeHtml(text);
+        var escaped = escapeHtml(text);
+        var terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+        var result = escaped;
+        for (var t = 0; t < terms.length; t++) {
+            var term = terms[t];
+            var regex = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            result = result.replace(regex, '<mark>$1</mark>');
+        }
+        return result;
+    }
+
+    function buildSecondary(asset, query) {
+        var parts = [];
+        if (asset.serial_number) parts.push('s/n:' + highlightMatch(asset.serial_number, query));
+        if (asset.company) parts.push(highlightMatch(asset.company, query));
+        if (asset.category) parts.push(highlightMatch(asset.category, query));
+        if (asset.location) parts.push('loc:' + highlightMatch(asset.location, query));
+        if (asset.assigned_to) parts.push('user:' + highlightMatch(asset.assigned_to, query));
+        if (asset.status) parts.push(highlightMatch(asset.status, query));
+        return parts.map(function(p) { return '<span>' + p + '</span>'; }).join('');
+    }
+
+    function filterAssets(query) {
+        if (!query) return [];
+        var terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+        return assetsData.filter(function(asset) {
+            var searchable = [
+                asset.asset_tag, asset.model, asset.serial_number,
+                asset.company, asset.category, asset.location,
+                asset.assigned_to, asset.status
+            ].join(' ').toLowerCase();
+            return terms.every(function(term) { return searchable.indexOf(term) !== -1; });
+        });
+    }
+
+    function renderList(query) {
+        var trimmed = (query || '').replace(/\s+/g, '');
+        if (!trimmed) {
+            filteredAssets = [];
+            highlightedIndex = -1;
+            list.innerHTML = '<div class="searchable-dropdown-empty">type to search assets...</div>';
+            return;
+        }
+
+        filteredAssets = filterAssets(query);
+        highlightedIndex = -1;
+
+        if (filteredAssets.length === 0) {
+            list.innerHTML = '<div class="searchable-dropdown-empty">no matching assets found</div>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < filteredAssets.length; i++) {
+            var asset = filteredAssets[i];
+            var primary = highlightMatch(asset.asset_tag, query) +
+                (asset.model ? ' \u2014 ' + highlightMatch(asset.model, query) : '');
+            var secondary = buildSecondary(asset, query);
+            html += '<div class="searchable-dropdown-item" data-index="' + i + '" data-id="' + asset.id + '">';
+            html += '<div class="searchable-dropdown-item-primary">' + primary + '</div>';
+            if (secondary) {
+                html += '<div class="searchable-dropdown-item-secondary">' + secondary + '</div>';
+            }
+            html += '</div>';
+        }
+        list.innerHTML = html;
+    }
+
+    function openDropdown() {
+        dropdown.classList.add('open');
+        renderList(input.value);
+    }
+
+    function closeDropdown() {
+        dropdown.classList.remove('open');
+        highlightedIndex = -1;
+    }
+
+    function selectAsset(asset) {
+        selectedId = asset.id;
+        hiddenInput.value = asset.id;
+        input.value = asset.asset_tag + (asset.model ? ' \u2014 ' + asset.model : '');
+        clearBtn.style.display = 'block';
+        confirmBtn.disabled = false;
+        closeDropdown();
+    }
+
+    function clearSelection() {
+        selectedId = '';
+        hiddenInput.value = '';
+        input.value = '';
+        clearBtn.style.display = 'none';
+        confirmBtn.disabled = true;
+        input.focus();
+    }
+
+    function scrollToHighlighted() {
+        var items = list.querySelectorAll('.searchable-dropdown-item');
+        if (highlightedIndex >= 0 && highlightedIndex < items.length) {
+            items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    function updateHighlight() {
+        var items = list.querySelectorAll('.searchable-dropdown-item');
+        for (var i = 0; i < items.length; i++) {
+            if (i === highlightedIndex) {
+                items[i].classList.add('highlighted');
+            } else {
+                items[i].classList.remove('highlighted');
+            }
+        }
+    }
+
+    input.addEventListener('focus', function() {
+        if (selectedId) {
+            input.select();
+            openDropdown();
+        }
+    });
+
+    input.addEventListener('input', function() {
+        selectedId = '';
+        hiddenInput.value = '';
+        confirmBtn.disabled = true;
+        clearBtn.style.display = input.value ? 'block' : 'none';
+        openDropdown();
+    });
+
+    input.addEventListener('keydown', function(e) {
+        if (!dropdown.classList.contains('open')) {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                openDropdown();
+                e.preventDefault();
+                return;
+            }
+        }
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (highlightedIndex < filteredAssets.length - 1) {
+                highlightedIndex++;
+                updateHighlight();
+                scrollToHighlighted();
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (highlightedIndex > 0) {
+                highlightedIndex--;
+                updateHighlight();
+                scrollToHighlighted();
+            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (highlightedIndex >= 0 && highlightedIndex < filteredAssets.length) {
+                selectAsset(filteredAssets[highlightedIndex]);
+            }
+        } else if (e.key === 'Escape') {
+            closeDropdown();
+            input.blur();
+        }
+    });
+
+    list.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        var item = e.target.closest('.searchable-dropdown-item');
+        if (item) {
+            var idx = parseInt(item.dataset.index, 10);
+            if (idx >= 0 && idx < filteredAssets.length) {
+                selectAsset(filteredAssets[idx]);
+            }
+        }
+    });
+
+    clearBtn.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        clearSelection();
+    });
+
+    document.addEventListener('mousedown', function(e) {
+        if (!dropdown.contains(e.target)) {
+            closeDropdown();
+            if (!selectedId && input.value) {
+                input.value = '';
+                clearBtn.style.display = 'none';
+            }
+        }
+    });
+
+    // Prevent form submission without a selection
+    var installForm = document.getElementById('install-form');
+    if (installForm) {
+        installForm.addEventListener('submit', function(e) {
+            if (!hiddenInput.value) {
+                e.preventDefault();
+                input.focus();
+                openDropdown();
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

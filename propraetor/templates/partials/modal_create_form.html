@@ -1,0 +1,42 @@
+{% comment %}
+Inline-create modal form fragment.
+Rendered by views.modal_create() and injected into the page by inline-create.js.
+This template deliberately has NO base template / <html> wrapper – it is a
+pure HTML fragment consumed via fetch().
+
+Context variables:
+    form      – a bound or unbound ModelForm instance
+    model_key – the search-config key (e.g. "company", "asset_model")
+    title     – human-readable title (e.g. "new company")
+{% endcomment %}
+
+{% if form.non_field_errors %}
+<div class="form-errors-banner">
+    <ul>
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="form-grid">
+    {% for field in form %}
+        {% if field.is_hidden %}
+            {{ field }}
+        {% else %}
+            <div class="form-group{% if field.field.widget.attrs.rows or field.name == 'notes' or field.name == 'description' or field.name == 'address' or field.name == 'specifications' %} full-width{% endif %}">
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}{% if field.field.required %}<span class="required-mark">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.help_text %}<span class="form-help">{{ field.help_text }}</span>{% endif %}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <span class="form-error">> {{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>

@@ -1,0 +1,64 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit model {{ object }}.{% else %}new model.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:asset_models_list' %}">asset_models</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:asset_model_details' object.id %}">{{ object }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_asset_model{% else %}new_asset_model{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Model Identification</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.category %}
+                    {% include 'partials/form_field.html' with field=form.manufacturer help="Leave blank for custom builds or unknown" %}
+                    {% include 'partials/form_field.html' with field=form.model_name help="e.g., '15', 'Satellite Pro C40-G', 'Custom', 'Unidentified'" %}
+                    {% include 'partials/form_field.html' with field=form.model_number help="Official model/part number from manufacturer" %}
+                    {% include 'partials/form_field.html' with field=form.notes full_width=True help="General notes (common issues, EOL date, warranty period, etc.)" %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:asset_model_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:asset_models_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_model{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

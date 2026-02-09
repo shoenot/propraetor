@@ -1,0 +1,107 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit spare part {{ object }}.{% else %}new spare part.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:spare_parts_list' %}">spare_parts</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:spare_part_details' object.id %}">{{ object }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_inventory_entry{% else %}new_inventory_entry{% endif %}</h1>
+    </div>
+
+    <!-- Info Notice -->
+    <div class="info-notice info-notice-muted">
+        <svg class="info-notice-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>
+            {% if editing %}
+                You are editing an <strong>inventory configuration entry</strong>.
+                The <em>quantity_available</em> field is read-only and automatically derived from
+                <a href="{% url 'propraetor:components_list' %}?status=spare">components with status=spare</a>.
+                Use this form to adjust reorder thresholds, storage location, and notes.
+            {% else %}
+                This creates an <strong>inventory configuration entry</strong> for a component type.
+                Stock counts are automatically derived from
+                <a href="{% url 'propraetor:components_list' %}?status=spare">components with status=spare</a>
+                &mdash; you do not need to set quantities manually.
+                Use this to configure reorder thresholds, storage location, and notes.
+            {% endif %}
+        </span>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Part Details</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.component_type %}
+                    {% include 'partials/form_field.html' with field=form.manufacturer %}
+                    {% include 'partials/form_field.html' with field=form.model %}
+                    {% include 'partials/form_field.html' with field=form.location %}
+                    {% include 'partials/form_field.html' with field=form.specifications full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Inventory Configuration</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% if editing %}
+                        {% include 'partials/form_field.html' with field=form.quantity_available %}
+                    {% endif %}
+                    {% include 'partials/form_field.html' with field=form.quantity_minimum %}
+                    {% include 'partials/form_field.html' with field=form.last_restocked %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Notes</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.notes full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:spare_part_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:spare_parts_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_inventory_entry{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

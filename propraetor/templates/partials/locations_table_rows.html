@@ -1,0 +1,22 @@
+{% for location in locations %}
+<tr>
+    <td>
+        <a href="{% url 'propraetor:location_details' location.id %}" class="link">{{ location.name }}</a>
+    </td>
+    <td class="text-muted">{{ location.city|default:"—" }}</td>
+    <td class="text-muted">{{ location.country|default:"—" }}</td>
+    <td>{{ location.assets.count }}</td>
+    <td>{{ location.employees.count }}</td>
+    <td>{{ location.default_for_departments.count }}</td>
+    <td>
+        <div class="action-buttons">
+            <a href="{% url 'propraetor:location_details' location.id %}" class="btn-link">view</a>
+            <a href="{% url 'propraetor:location_edit' location.id %}" class="btn-link">edit</a>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="7" class="text-center text-muted">no locations found</td>
+</tr>
+{% endfor %}

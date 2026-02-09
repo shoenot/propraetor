@@ -1,0 +1,32 @@
+<td><a href="{% url 'propraetor:requisition_details' item.id %}" class="link">{{ item.requisition_number }}</a></td>
+<td>{{ item.requisition_type }}</td>
+<td>{{ item.company.code }}</td>
+<td>{{ item.department.name }}</td>
+<td>{{ item.requested_by.name }}</td>
+<td>
+    {% if item.fulfilled_by_invoice %}
+        {{ item.fulfilled_by_invoice.invoice_number }}
+    {% else %}
+        <span class="text-muted">-</span>
+    {% endif %}
+</td>
+<td>
+    {% if item.fulfilled_by_asset %}
+        {{ item.fulfilled_by_asset.asset_tag }}
+    {% elif item.fulfilled_by_component %}
+        {{ item.fulfilled_by_component.component_tag }}
+    {% else %}
+        <span class="text-muted">-</span>
+    {% endif %}
+</td>
+<td>{{ item.priority }}</td>
+<td>
+    <span class="status-badge status-{{ item.status }}">
+        {{ item.get_status_display }}
+    </span>
+</td>
+<td>
+    <div class="action-buttons">
+        edit
+    </div>
+</td>

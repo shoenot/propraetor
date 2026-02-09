@@ -1,0 +1,77 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit user {{ object.name }}.{% else %}new user.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:users_list' %}">users</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:user_details' object.id %}">{{ object.name }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_user{% else %}new_user{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Identity</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.name %}
+                    {% include 'partials/form_field.html' with field=form.employee_id %}
+                    {% include 'partials/form_field.html' with field=form.email %}
+                    {% include 'partials/form_field.html' with field=form.phone %}
+                    {% include 'partials/form_field.html' with field=form.extension %}
+                    {% include 'partials/form_field.html' with field=form.position %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Organization</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.company %}
+                    {% include 'partials/form_field.html' with field=form.department %}
+                    {% include 'partials/form_field.html' with field=form.location %}
+                    {% include 'partials/form_field.html' with field=form.status %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:user_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:users_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_user{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

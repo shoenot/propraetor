@@ -1,0 +1,27 @@
+<td>
+    <a href="{% url 'propraetor:component_details' item.id %}" class="link">
+        {{ item.component_type }}
+    </a>
+</td>
+<td>{{ item.manufacturer }}</td>
+<td>{{ item.model }}</td>
+<td>{{ item.serial_number }}</td>
+<td>
+    {% if item.parent_asset %}
+        <a href="{% url 'propraetor:asset_details' item.parent_asset.id %}" class="link">
+            {{ item.parent_asset.asset_tag }}
+        </a>
+    {% else %}
+        <span class="text-muted">-</span>
+    {% endif %}
+</td>
+<td>
+    <span class="status-badge status-{{ item.status }}">
+        {{ item.get_status_display }}
+    </span>
+</td>
+<td>
+    <div class="action-buttons">
+        edit
+    </div>
+</td>

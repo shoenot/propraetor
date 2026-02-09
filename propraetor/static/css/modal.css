@@ -1,0 +1,113 @@
+/* ── Confirmation Modal ─────────────────────────────────────── */
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+.confirm-overlay.confirm-visible {
+    opacity: 1;
+    visibility: visible;
+}
+.confirm-modal {
+    background: var(--bg-secondary, #1e1e2e);
+    border: 1px solid var(--border-color, #313244);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+    transform: scale(0.95) translateY(8px);
+    transition: transform 0.15s ease;
+}
+.confirm-visible .confirm-modal {
+    transform: scale(1) translateY(0);
+}
+.confirm-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem 0.5rem;
+}
+.confirm-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(250, 179, 135, 0.12);
+    flex-shrink: 0;
+}
+.confirm-icon {
+    color: var(--warning, #fab387);
+    width: 18px;
+    height: 18px;
+}
+.confirm-title {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary, #cdd6f4);
+    margin: 0;
+}
+.confirm-close {
+    background: none;
+    border: none;
+    color: var(--text-muted, #6c7086);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0 0.25rem;
+    line-height: 1;
+    transition: color 0.15s;
+}
+.confirm-close:hover {
+    color: var(--text-primary, #cdd6f4);
+}
+.confirm-body {
+    padding: 0.75rem 1.25rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-secondary, #a6adc8);
+}
+.confirm-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0 1.25rem 1rem;
+}
+.btn-danger {
+    background: var(--red, #f38ba8);
+    color: var(--bg-primary, #1e1e2e);
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.45rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background 0.15s, transform 0.1s;
+}
+.btn-danger:hover {
+    background: var(--red-hover, #eba0ac);
+    transform: translateY(-1px);
+}
+.btn-danger:active {
+    transform: translateY(0);
+}
+@media (max-width: 480px) {
+    .confirm-modal {
+        width: 95%;
+    }
+}

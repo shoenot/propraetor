@@ -1,0 +1,15 @@
+<td>
+    <a href="{% url 'propraetor:location_details' item.id %}" class="link">
+        {{ item.name }}
+    </a>
+</td>
+<td>{{ item.address }}</td>
+<td>{{ item.city }}</td>
+<td>{{ item.zip }}</td>
+<td>{{ item.users }}</td>
+<td>{{ item.assets }}</td>
+<td>
+    <div class="action-buttons">
+        edit
+    </div>
+</td>

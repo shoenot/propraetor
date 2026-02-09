@@ -1,0 +1,107 @@
+{% comment %}
+Transfer-location modal fragment.
+Loaded via HTMX into #transfer-location-modal on the asset detail page.
+No base template — this is a pure HTML fragment.
+{% endcomment %}
+
+<div class="confirm-overlay confirm-visible" id="transfer-overlay" aria-hidden="false">
+    <div class="confirm-modal" role="dialog" aria-label="Transfer Location" style="max-width: 480px;">
+        <div class="confirm-header">
+            <div class="confirm-icon-wrap">
+                <svg class="confirm-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </div>
+            <h3 class="confirm-title">transfer location</h3>
+            <button class="confirm-close" aria-label="Close"
+                    onclick="document.getElementById('transfer-location-modal').innerHTML='';">&times;</button>
+        </div>
+
+        <form method="post"
+              action="{% url 'propraetor:asset_transfer_location' asset.id %}"
+              hx-post="{% url 'propraetor:asset_transfer_location' asset.id %}"
+              hx-target="#transfer-location-modal"
+              hx-swap="innerHTML"
+              id="transfer-location-form">
+            {% csrf_token %}
+
+            <div class="confirm-body" style="padding-bottom: 0;">
+                <div style="margin-bottom: 0.75rem; font-size: 0.82rem; color: var(--text-secondary, #a6adc8);">
+                    <strong style="color: var(--text-primary, #cdd6f4);">{{ asset.asset_tag }}</strong>
+                    <span style="margin: 0 0.25rem;">&mdash;</span>
+                    current location:
+                    <strong style="color: var(--text-primary, #cdd6f4);">
+                        {% if asset.location %}{{ asset.location.name }}{% else %}not set{% endif %}
+                    </strong>
+                </div>
+
+                {% if asset.assigned_to %}
+                <div style="background: rgba(250, 179, 135, 0.08); border: 1px solid rgba(250, 179, 135, 0.25); border-radius: 6px; padding: 0.6rem 0.75rem; margin-bottom: 0.75rem; font-size: 0.78rem; color: var(--warning, #fab387);">
+                    <svg style="width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    This asset is assigned to <strong>{{ asset.assigned_to }}</strong>.
+                    Transferring to a location will unassign the asset from this employee.
+                </div>
+                {% endif %}
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="{{ form.location.id_for_label }}" style="font-size: 0.82rem; margin-bottom: 0.35rem; display: block; color: var(--text-secondary, #a6adc8);">
+                        new location
+                    </label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                        {% for error in form.location.errors %}
+                            <span class="form-error" style="font-size: 0.78rem; color: var(--red, #f38ba8); margin-top: 0.25rem; display: block;">> {{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                    <span class="form-help" style="font-size: 0.72rem; color: var(--text-muted, #6c7086); margin-top: 0.25rem; display: block;">
+                        Leave empty to clear the current location.
+                    </span>
+                </div>
+            </div>
+
+            <div class="confirm-footer">
+                <button type="button" class="btn btn-ghost"
+                        onclick="document.getElementById('transfer-location-modal').innerHTML='';">
+                    cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    transfer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    /* Close modal on overlay click (outside the dialog box) */
+    (function() {
+        var overlay = document.getElementById('transfer-overlay');
+        if (overlay) {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    document.getElementById('transfer-location-modal').innerHTML = '';
+                }
+            });
+        }
+        /* Close on Escape key */
+        function onEsc(e) {
+            if (e.key === 'Escape') {
+                document.getElementById('transfer-location-modal').innerHTML = '';
+                document.removeEventListener('keydown', onEsc);
+            }
+        }
+        document.addEventListener('keydown', onEsc);
+    })();
+</script>

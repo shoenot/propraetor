@@ -1,0 +1,567 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+
+{% block title %}invoice {{ invoice.invoice_number }}.{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="detail-breadcrumb">
+    <a href="{% url 'propraetor:invoices_list' %}">invoices</a>
+    <span> / </span>
+    <span>{{ invoice.invoice_number }}</span>
+</div>
+
+<!-- Invoice Header -->
+<div class="detail-header">
+    <div>
+        <h1 class="detail-title">
+            {{ invoice.invoice_number }}
+        </h1>
+        <div class="detail-meta">
+            <span class="status-badge status-{{ invoice.payment_status }}">
+                {{ invoice.get_payment_status_display }}
+            </span>
+
+            <span class="text-muted">
+                {{ invoice.company.name|default:invoice.company.code }}
+            </span>
+
+            <span class="text-muted">
+                {{ invoice.vendor.vendor_name }}
+            </span>
+
+            {% if invoice.invoice_date %}
+            <span class="text-muted">
+                invoice_date: {{ invoice.invoice_date|date:"Y-m-d" }}
+            </span>
+            {% endif %}
+
+            {% if invoice.payment_date %}
+            <span class="text-muted">
+                payment_date: {{ invoice.payment_date|date:"Y-m-d" }}
+            </span>
+            {% endif %}
+
+            {% if invoice.items_received %}
+                <span class="status-badge status-active">items received</span>
+            {% elif invoice.line_items.exists %}
+                <span class="status-badge status-pending">items pending</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-header-actions">
+        <a href="{% url 'propraetor:invoice_edit' invoice.id %}" class="btn btn-primary">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414
+                       a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+            </svg>
+            edit
+        </a>
+        <button
+            class="btn btn-secondary"
+            hx-delete="{% url 'propraetor:invoice_delete' invoice.id %}"
+            hx-confirm="Are you sure you want to delete invoice {{ invoice.invoice_number }}?" data-confirm-message="Are you sure you want to delete invoice {{ invoice.invoice_number }}?"
+        >
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862
+                       a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4
+                       a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+            </svg>
+            delete
+        </button>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <!-- Left Column -->
+    <div class="detail-column">
+        <!-- Basic Information -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Basic Information</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>invoice_number</label>
+                    <div class="value">{{ invoice.invoice_number }}</div>
+                </div>
+
+                <div class="field-group">
+                    <label>company</label>
+                    <div class="value">
+                        <a href="{% url 'propraetor:company_details' invoice.company.id %}" class="link">
+                            {{ invoice.company.name|default:invoice.company.code }}
+                        </a>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>vendor</label>
+                    <div class="value">
+                        <a href="{% url 'propraetor:vendor_details' invoice.vendor.id %}" class="link">
+                            {{ invoice.vendor.vendor_name }}
+                        </a>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>invoice_date</label>
+                    <div class="value">
+                        {{ invoice.invoice_date|date:"Y-m-d" }}
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>payment_status</label>
+                    <div class="value">
+                        <span class="status-badge status-{{ invoice.payment_status }}">
+                            {{ invoice.get_payment_status_display }}
+                        </span>
+                    </div>
+                </div>
+
+                {% if invoice.payment_date %}
+                <div class="field-group">
+                    <label>payment_date</label>
+                    <div class="value">
+                        {{ invoice.payment_date|date:"Y-m-d" }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Financials -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Financials</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>total_amount</label>
+                    <div class="value fw-semibold">
+                        {{ invoice.total_amount }}
+                    </div>
+                </div>
+
+                {% if invoice.line_items.exists %}
+                <div class="field-group">
+                    <label>line_items_total (computed)</label>
+                    <div class="value {% if invoice.line_items_total != invoice.total_amount %}text-warning{% endif %}">
+                        {{ invoice.line_items_total }}
+                        {% if invoice.line_items_total != invoice.total_amount %}
+                            <span class="text-muted text-sm">&mdash; differs from stored total</span>
+                        {% else %}
+                            <span class="text-muted text-sm">&mdash; matches</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if invoice.payment_method %}
+                <div class="field-group">
+                    <label>payment_method</label>
+                    <div class="value">
+                        {{ invoice.payment_method }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if invoice.payment_reference %}
+                <div class="field-group">
+                    <label>payment_reference</label>
+                    <div class="value">
+                        {{ invoice.payment_reference }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Receiving Info -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Receiving</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>received_by</label>
+                    <div class="value">
+                        {% if invoice.received_by %}
+                            <a href="{% url 'propraetor:user_details' invoice.received_by.id %}" class="link">
+                                {{ invoice.received_by.name }}
+                            </a>
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>received_date</label>
+                    <div class="value">
+                        {% if invoice.received_date %}
+                            {{ invoice.received_date|date:"Y-m-d" }}
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Linked Requisitions -->
+        {% if invoice.requisitions.exists %}
+        <section class="detail-card">
+            <h2 class="detail-card-title">Linked Requisitions ({{ invoice.requisitions.count }})</h2>
+            <div class="detail-card-content">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>requisition</th>
+                                <th>status</th>
+                                <th>date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in invoice.requisitions.all %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'propraetor:requisition_details' req.id %}" class="link">
+                                        {{ req.requisition_number }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ req.status }}">{{ req.get_status_display }}</span>
+                                </td>
+                                <td>{{ req.requisition_date|date:"Y-m-d" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Notes -->
+        {% if invoice.notes %}
+        <section class="detail-card">
+            <h2 class="detail-card-title">Notes</h2>
+            <div class="detail-card-content">
+                <div class="notes-content">
+                    {{ invoice.notes }}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+
+    <!-- Right Column -->
+    <div class="detail-column">
+        <!-- Line Items -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">
+                Line Items ({{ invoice.line_items.count }})
+            </h2>
+            <div class="detail-card-content">
+                {% if invoice.line_items.exists %}
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="w-12">#</th>
+                                    <th class="description-col">description</th>
+                                    <th class="type-col">item_type</th>
+                                    <th class="qty-col text-right">qty</th>
+                                    <th class="money-col text-right">unit_cost</th>
+                                    <th class="money-col text-right">line_total</th>
+                                    <th class="qty-col text-right">received</th>
+                                    <th class="w-12"></th>
+                                    <th class="w-12"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in invoice.line_items.all %}
+                                <tr>
+                                    <td>
+                                        {{ item.line_number }}
+                                    </td>
+                                    <td>
+                                        <div class="value">
+                                            {{ item.description }}
+                                        </div>
+                                        <div class="text-muted text-sm">
+                                            {% if item.asset_model %}
+                                                Asset Model: {{ item.asset_model.model_name }}
+                                            {% elif item.component_type %}
+                                                Component: {{ item.component_type.type_name|default:item.component_type }}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>{{ item.get_item_type_display }}</td>
+                                    <td class="text-right">{{ item.quantity }}</td>
+                                    <td class="text-right">{{ item.item_cost }}</td>
+                                    <td class="text-right">{{ item.line_total }}</td>
+                                    <td class="text-right">
+                                        {% if item.item_type == "asset" or item.item_type == "component" %}
+                                            {% if item.is_fully_received %}
+                                                <span class="status-badge status-active">{{ item.received_count }}/{{ item.quantity }}</span>
+                                            {% elif item.received_count > 0 %}
+                                                <span class="status-badge status-pending">{{ item.received_count }}/{{ item.quantity }}</span>
+                                            {% else %}
+                                                <span class="text-muted">0/{{ item.quantity }}</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">&mdash;</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'propraetor:invoice_line_item_edit' invoice.id item.id %}" class="link text-sm">edit</a>
+                                    </td>
+                                    <td>
+                                        <button
+                                            class="btn btn-ghost btn-sm"
+                                            hx-delete="{% url 'propraetor:invoice_line_item_delete' invoice.id item.id %}"
+                                            hx-confirm="Delete line item #{{ item.line_number }}?" data-confirm-message="Delete line item #{{ item.line_number }}?"
+                                        >
+                                            &times;
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <span class="text-muted">no line items</span>
+                {% endif %}
+            </div>
+            <div class="action-separator">
+                <a href="{% url 'propraetor:invoice_line_item_create' invoice.id %}" class="btn btn-primary btn-full">
+                    add_line_item
+                </a>
+            </div>
+        </section>
+
+        <!-- Received Assets & Components -->
+        {% if received_assets or received_components %}
+        <section class="detail-card">
+            <h2 class="detail-card-title">
+                Received Items ({{ received_assets.count|add:received_components.count }})
+            </h2>
+            <div class="detail-card-content">
+                {% if received_assets %}
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>asset_tag</th>
+                                <th>model</th>
+                                <th>status</th>
+                                <th>line #</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for asset in received_assets %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'propraetor:asset_details' asset.id %}" class="link">{{ asset.asset_tag }}</a>
+                                </td>
+                                <td>{{ asset.asset_model }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ asset.status }}">{{ asset.get_status_display }}</span>
+                                </td>
+                                <td>
+                                    {% if asset.invoice_line_item %}
+                                        L{{ asset.invoice_line_item.line_number }}
+                                    {% else %}
+                                        <span class="text-muted">&mdash;</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+                {% if received_components %}
+                <div class="table-wrapper" {% if received_assets %}style="margin-top: 0.75rem;"{% endif %}>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>component</th>
+                                <th>type</th>
+                                <th>status</th>
+                                <th>line #</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in received_components %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'propraetor:component_details' comp.id %}" class="link">{{ comp.component_tag }}</a>
+                                </td>
+                                <td>{{ comp.component_type.type_name }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ comp.status }}">{{ comp.get_status_display }}</span>
+                                </td>
+                                <td>
+                                    {% if comp.invoice_line_item %}
+                                        L{{ comp.invoice_line_item.line_number }}
+                                    {% else %}
+                                        <span class="text-muted">&mdash;</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Timeline -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Timeline</h2>
+            <div class="detail-card-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">created_at</div>
+                            <div class="timeline-value">
+                                {{ invoice.created_at|date:"Y-m-d H:i" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">invoice_date</div>
+                            <div class="timeline-value">
+                                {{ invoice.invoice_date|date:"Y-m-d" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if invoice.received_date %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">received_date</div>
+                            <div class="timeline-value">
+                                {{ invoice.received_date|date:"Y-m-d" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if invoice.payment_date %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">payment_date</div>
+                            <div class="timeline-value">
+                                {{ invoice.payment_date|date:"Y-m-d" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">last_updated</div>
+                            <div class="timeline-value">
+                                {{ invoice.updated_at|date:"Y-m-d H:i" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Quick Actions</h2>
+            <div class="detail-card-content">
+                <div class="action-stack">
+                    {% if invoice.line_items.exists and not invoice.items_received %}
+                    <button
+                        class="btn btn-primary btn-action"
+                        hx-post="{% url 'propraetor:receive_invoice_items' invoice.id %}"
+                        hx-confirm="Auto-create assets/components from all line items on this invoice? This will create records for any unreceived items." data-confirm-message="Auto-create assets/components from all line items on this invoice? This will create records for any unreceived items."
+                    >
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M20 7l-8 4-8-4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                            />
+                        </svg>
+                        receive_items
+                    </button>
+                    {% elif invoice.items_received %}
+                    <span class="text-muted text-sm">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:1em; height:1em; vertical-align:middle;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        all items received
+                    </span>
+                    {% endif %}
+
+                    {% if invoice.payment_status != "paid" %}
+                    <button
+                        class="btn btn-secondary btn-action"
+                        hx-post="{% url 'propraetor:invoice_mark_paid' invoice.id %}"
+                        hx-confirm="Mark invoice {{ invoice.invoice_number }} as paid?" data-confirm-message="Mark invoice {{ invoice.invoice_number }} as paid?"
+                    >
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0
+                                   11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                        mark_as_paid
+                    </button>
+                    {% endif %}
+
+                    <button
+                        class="btn btn-secondary btn-action"
+                        hx-post="{% url 'propraetor:invoice_duplicate' invoice.id %}"
+                        hx-confirm="Duplicate invoice {{ invoice.invoice_number }}?" data-confirm-message="Duplicate invoice {{ invoice.invoice_number }}?"
+                    >
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M8 7h8m-8 4h5m-9 5a2 2 0 002 2h8a2 2 0
+                                   002-2V7a2 2 0 00-2-2H9L7 7H6a2 2 0 00-2 2v7z"
+                            />
+                        </svg>
+                        duplicate_invoice
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<br>
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+
+{% block title %}maintenance {{ record.asset.asset_tag }} - {{ record.get_maintenance_type_display }}.{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="detail-breadcrumb">
+    <a href="{% url 'propraetor:maintenance_list' %}">maintenance</a>
+    <span> / </span>
+    <span>{{ record.asset.asset_tag }} - {{ record.get_maintenance_type_display }}</span>
+</div>
+
+<!-- Maintenance Record Header -->
+<div class="detail-header">
+    <div>
+        <h1 class="detail-title">{{ record.asset.asset_tag }} - {{ record.get_maintenance_type_display }}</h1>
+        <div class="detail-meta">
+            <span class="status-badge {% if record.maintenance_type == 'repair' %}status-in_repair{% else %}status-active{% endif %}">
+                {{ record.get_maintenance_type_display }}
+            </span>
+            <span class="text-muted">{{ record.maintenance_date|date:"Y-m-d" }}</span>
+            {% if record.performed_by %}
+                <span class="text-muted">by {{ record.performed_by }}</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="detail-header-actions">
+        <a href="{% url 'propraetor:maintenance_edit' record.id %}" class="btn btn-primary">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            edit
+        </a>
+        <button
+            class="btn btn-secondary"
+            hx-delete="{% url 'propraetor:maintenance_delete' record.id %}"
+            hx-confirm="Are you sure you want to delete this maintenance record?" data-confirm-message="Are you sure you want to delete this maintenance record?"
+        >
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            delete
+        </button>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <!-- Left Column -->
+    <div class="detail-column">
+        <!-- Maintenance Information -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Maintenance Information</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>asset</label>
+                    <div class="value">
+                        <a href="{% url 'propraetor:asset_details' record.asset.id %}" class="link">{{ record.asset.asset_tag }}</a>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>maintenance_type</label>
+                    <div class="value">
+                        <span class="status-badge {% if record.maintenance_type == 'repair' %}status-in_repair{% else %}status-active{% endif %}">
+                            {{ record.get_maintenance_type_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>maintenance_date</label>
+                    <div class="value">{{ record.maintenance_date|date:"Y-m-d" }}</div>
+                </div>
+
+                <div class="field-group">
+                    <label>performed_by</label>
+                    <div class="value">
+                        {% if record.performed_by %}
+                            {{ record.performed_by }}
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>cost</label>
+                    <div class="value">
+                        {% if record.cost %}
+                            <span class="fw-semibold">{{ record.cost }}</span>
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>next_maintenance_date</label>
+                    <div class="value">
+                        {% if record.next_maintenance_date %}
+                            {{ record.next_maintenance_date|date:"Y-m-d" }}
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Description -->
+        {% if record.description %}
+        <section class="detail-card">
+            <h2 class="detail-card-title">Description</h2>
+            <div class="detail-card-content">
+                <div class="notes-content">
+                    {{ record.description }}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+
+    <!-- Right Column -->
+    <div class="detail-column">
+        <!-- Asset Information -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Asset Information</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>asset_tag</label>
+                    <div class="value">
+                        <a href="{% url 'propraetor:asset_details' record.asset.id %}" class="link">{{ record.asset.asset_tag }}</a>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label>model</label>
+                    <div class="value">{{ record.asset.asset_model }}</div>
+                </div>
+                <div class="field-group">
+                    <label>status</label>
+                    <div class="value">
+                        <span class="status-badge status-{{ record.asset.status }}">{{ record.asset.get_status_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Timeline</h2>
+            <div class="detail-card-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">created_at</div>
+                            <div class="timeline-value">{{ record.created_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">maintenance_date</div>
+                            <div class="timeline-value">{{ record.maintenance_date|date:"Y-m-d" }}</div>
+                        </div>
+                    </div>
+
+                    {% if record.next_maintenance_date %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">next_maintenance_date</div>
+                            <div class="timeline-value">{{ record.next_maintenance_date|date:"Y-m-d" }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Quick Actions</h2>
+            <div class="detail-card-content">
+                <div class="action-stack">
+                    <a href="{% url 'propraetor:asset_details' record.asset.id %}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        view_asset
+                    </a>
+                    <a href="{% url 'propraetor:maintenance_create' %}?asset={{ record.asset.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        add_maintenance_record
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<br>
+{% endblock %}

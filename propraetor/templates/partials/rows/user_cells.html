@@ -1,0 +1,45 @@
+<td>
+    <a href="{% url 'propraetor:user_details' item.id %}" class="link">
+        {{ item.name }}
+    </a>
+</td>
+<td>
+    {% if item.employee_id %}
+        <span>{{ item.employee_id }}</span>
+    {% else %}
+        <span class="text-muted">-</span>
+    {% endif %}
+</td>
+<td>
+    {% if item.phone %}
+        <span>{{ item.phone }}</span>
+    {% else %}
+        <span class="text-muted">-</span>
+    {% endif %}
+</td>
+<td>
+    <a href="" class="link">
+        {{ item.company.code }}
+    </a>
+</td>
+<td>
+    <a href="" class="link">
+        {{ item.department.name }}
+    </a>
+</td>
+<td>
+    {{ user.assigned_assets.count }}
+</td>
+<td>
+        {{ item.position.name }}
+</td>
+<td>
+    <span class="status-badge status-{{ item.status }}">
+        {{ item.get_status_display }}
+    </span>
+</td>
+<td>
+    <div class="action-buttons">
+        edit
+    </div>
+</td>

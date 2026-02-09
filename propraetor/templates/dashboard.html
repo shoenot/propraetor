@@ -1,0 +1,436 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}propraetor.{% endblock %}
+
+{% block content %}
+<div class="container dashboard-layout">
+
+    <!-- ============================================================
+         SECTION: PRIMARY STATS GRID
+         ============================================================ -->
+    <section class="dash-section">
+        <h2 class="dash-section-title">// overview</h2>
+        <div class="stats-grid stats-grid-4">
+            <a href="{% url 'propraetor:assets_list' %}" class="stat-card">
+                <span class="stat-label">total assets</span>
+                <span class="stat-value">{{ total_assets|default:0 }}</span>
+                <span class="stat-subtext">{{ active_pct|default:0 }}% active</span>
+            </a>
+            <a href="{% url 'propraetor:assets_list' %}?status=in_repair" class="stat-card">
+                <span class="stat-label">in repair</span>
+                <span class="stat-value text-warning">{{ in_repair|default:0 }}</span>
+                <span class="stat-subtext">{{ repair_pct|default:0 }}% of fleet</span>
+            </a>
+            <a href="{% url 'propraetor:users_list' %}" class="stat-card">
+                <span class="stat-label">active users</span>
+                <span class="stat-value">{{ active_users|default:0 }}</span>
+                <span class="stat-subtext">of {{ total_employees|default:0 }} total</span>
+            </a>
+            <a href="{% url 'propraetor:components_list' %}" class="stat-card">
+                <span class="stat-label">components</span>
+                <span class="stat-value">{{ total_components|default:0 }}</span>
+                <span class="stat-subtext">{{ installed_components|default:0 }} installed</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION: FINANCIAL STATS
+         ============================================================ -->
+    <section class="dash-section">
+        <h2 class="dash-section-title">// financials</h2>
+        <div class="stats-grid stats-grid-4">
+            <a href="{% url 'propraetor:invoices_list' %}?payment_status=unpaid" class="stat-card stat-card--compact">
+                <span class="stat-label">unpaid invoice value</span>
+                <span class="stat-value stat-value--sm {% if unpaid_invoices > 0 %}text-danger{% endif %}">{{ unpaid_amount|floatformat:2 }}</span>
+                <span class="stat-subtext">{{ unpaid_invoices|default:0 }} invoice{{ unpaid_invoices|pluralize }}</span>
+            </a>
+            <div class="stat-card stat-card--compact">
+                <span class="stat-label">paid (30d)</span>
+                <span class="stat-value stat-value--sm text-success">{{ recently_paid_invoices|default:0 }}</span>
+                <span class="stat-subtext">{{ recently_paid_amount|floatformat:2 }} total</span>
+            </div>
+            <div class="stat-card stat-card--compact">
+                <span class="stat-label">maintenance cost (30d)</span>
+                <span class="stat-value stat-value--sm">{{ total_maintenance_cost_30d|floatformat:2 }}</span>
+            </div>
+            <div class="stat-card stat-card--compact">
+                <span class="stat-label">total invoice value</span>
+                <span class="stat-value stat-value--sm">{{ total_invoice_value|floatformat:2 }}</span>
+                <span class="stat-subtext">{{ total_invoices|default:0 }} invoices</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         MAIN DASHBOARD GRID: Two-column layout
+         ============================================================ -->
+    <div class="dash-grid">
+
+        <!-- LEFT COLUMN -->
+        <div class="dash-column">
+
+            <!-- ======================================================
+                 RECENT ACTIVITY TABLE
+                 ====================================================== -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title">recent activity</h3>
+                    <a href="{% url 'propraetor:activity_list' %}" class="dash-card-link">view all &rarr;</a>
+                </div>
+                <div class="dash-card-body dash-card-body--table">
+                    {% if recent_activity %}
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th class="col-type">type</th>
+                                <th class="col-event">event</th>
+                                <th class="col-detail">detail</th>
+                                <th class="col-actor">actor</th>
+                                <th class="col-time">time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in recent_activity %}
+                            <tr>
+                                <td>
+                                    <span class="event-type-badge event-type-{{ event.event_type }}">
+                                        {{ event.icon|default:"?" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if event.url %}
+                                        <a href="{{ event.url }}" class="link">{{ event.message }}</a>
+                                    {% else %}
+                                        {{ event.message }}
+                                    {% endif %}
+                                </td>
+                                <td><span class="text-muted">{{ event.detail|default:"—" }}</span></td>
+                                <td><span class="text-muted">{{ event.actor_name|default:"system" }}</span></td>
+                                <td class="text-muted col-time-value">{{ event.timestamp|date:"M d, H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="dash-empty">no recent activity</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ======================================================
+                 PENDING REQUISITIONS
+                 ====================================================== -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title">pending requisitions</h3>
+                    <a href="{% url 'propraetor:requisition_list' %}" class="dash-card-link">view all &rarr;</a>
+                </div>
+                <div class="dash-card-body dash-card-body--table">
+                    {% if pending_requisitions %}
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>req #</th>
+                                <th>requested by</th>
+                                <th>department</th>
+                                <th>priority</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in pending_requisitions %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'propraetor:requisition_details' req.id %}" class="link">{{ req.requisition_number }}</a>
+                                </td>
+                                <td>{{ req.requested_by.name|default:"—" }}</td>
+                                <td class="text-muted">{{ req.department.name|default:"—" }}</td>
+                                <td>
+                                    <span class="priority-badge priority-{{ req.priority }}">
+                                        {{ req.get_priority_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="dash-empty">no pending requisitions</div>
+                    {% endif %}
+                </div>
+                <div class="dash-card-footer">
+                    <span class="text-muted">{{ pending_requisitions_count|default:0 }} pending</span>
+                    <span class="text-muted">&middot;</span>
+                    <span class="text-success">{{ fulfilled_requisitions_30d|default:0 }} fulfilled (30d)</span>
+                </div>
+            </div>
+
+            <!-- ======================================================
+                 RECENT MAINTENANCE
+                 ====================================================== -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title">recent maintenance</h3>
+                </div>
+                <div class="dash-card-body dash-card-body--table">
+                    {% if recent_maintenance %}
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>asset</th>
+                                <th>type</th>
+                                <th>performed by</th>
+                                <th>cost</th>
+                                <th>date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in recent_maintenance %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'propraetor:asset_details' m.asset.id %}" class="link">{{ m.asset.asset_tag }}</a>
+                                </td>
+                                <td>
+                                    <span class="maint-type-badge maint-{{ m.maintenance_type }}">
+                                        {{ m.get_maintenance_type_display }}
+                                    </span>
+                                </td>
+                                <td class="text-muted">{{ m.performed_by|default:"—" }}</td>
+                                <td>{% if m.cost %}{{ m.cost|floatformat:2 }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                                <td class="text-muted">{{ m.maintenance_date|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="dash-empty">no maintenance records</div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="dash-column">
+
+            <!-- ======================================================
+                 ASSET STATUS DISTRIBUTION
+                 ====================================================== -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title">asset distribution</h3>
+                    <a href="{% url 'propraetor:assets_list' %}" class="dash-card-link">view all &rarr;</a>
+                </div>
+                <div class="dash-card-body">
+                    <!-- Bar chart visualization -->
+                    <div class="status-bar-chart">
+                        {% for status in asset_status_breakdown %}
+                        {% if status.value > 0 %}
+                        <div class="status-bar-row">
+                            <div class="status-bar-label">
+                                <span class="status-dot {{ status.css_class }}"></span>
+                                <span>{{ status.label }}</span>
+                            </div>
+                            <div class="status-bar-track">
+                                <div class="status-bar-fill {{ status.css_class }}"
+                                     style="width: {% widthratio status.value total_assets 100 %}%">
+                                </div>
+                            </div>
+                            <span class="status-bar-value">{{ status.value }}</span>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Total summary line -->
+                    <div class="status-total">
+                        <span class="text-muted">total</span>
+                        <span>{{ total_assets|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================================================
+                 ASSETS ADDED (LAST 6 MONTHS SPARKLINE)
+                 ====================================================== -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title">assets added (6 mo.)</h3>
+                </div>
+                <div class="dash-card-body">
+                    <div class="spark-chart">
+                        {% for m in assets_by_month %}
+                        <div class="spark-bar-wrapper">
+                            <div class="spark-bar"
+                                 style="height: {% if m.count > 0 %}{% widthratio m.count total_assets 100 %}{% else %}2{% endif %}%"
+                                 title="{{ m.month }}: {{ m.count }} assets">
+                            </div>
+                            <span class="spark-label">{{ m.month }}</span>
+                            <span class="spark-count">{{ m.count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================================================
+                 WARRANTY ALERTS
+                 ====================================================== -->
+            <div class="dash-card {% if warranty_expiring or warranty_expired_count > 0 %}dash-card--alert{% endif %}">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title">
+                        warranty alerts
+                        {% if warranty_expired_count > 0 %}
+                        <span class="alert-count text-danger">{{ warranty_expired_count }} expired</span>
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="dash-card-body">
+                    {% if warranty_expiring %}
+                    <div class="alert-list">
+                        {% for asset in warranty_expiring %}
+                        <div class="alert-item">
+                            <div class="alert-item-left">
+                                <a href="{% url 'propraetor:asset_details' asset.id %}" class="link">{{ asset.asset_tag }}</a>
+                                <span class="text-muted">&mdash; {{ asset.asset_model }}</span>
+                            </div>
+                            <div class="alert-item-right">
+                                <span class="warranty-date {% if asset.warranty_expiry_date <= today %}text-danger{% else %}text-warning{% endif %}">
+                                    {{ asset.warranty_expiry_date|date:"M d, Y" }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="dash-empty">no warranties expiring in the next 90 days</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ======================================================
+                 LOW STOCK SPARE PARTS
+                 ====================================================== -->
+            <div class="dash-card {% if low_stock_parts %}dash-card--alert{% endif %}">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title">
+                        low stock alerts
+                        {% if low_stock_parts %}
+                        <span class="alert-count text-warning">{{ low_stock_parts|length }} items</span>
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="dash-card-body">
+                    {% if low_stock_parts %}
+                    <div class="alert-list">
+                        {% for part in low_stock_parts %}
+                        <div class="alert-item">
+                            <div class="alert-item-left">
+                                <span class="text-primary">{{ part.component_type }}</span>
+                                <span class="text-muted">
+                                    {{ part.manufacturer|default:"Generic" }}
+                                    {% if part.specifications %}&mdash; {{ part.specifications|truncatewords:5 }}{% endif %}
+                                </span>
+                            </div>
+                            <div class="alert-item-right">
+                                <span class="stock-indicator {% if part.quantity_available == 0 %}text-danger{% else %}text-warning{% endif %}">
+                                    {{ part.quantity_available }}/{{ part.quantity_minimum }} min
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="dash-empty">all spare parts adequately stocked</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ======================================================
+                 COMPONENT HEALTH
+                 ====================================================== -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title">component health</h3>
+                    <a href="{% url 'propraetor:components_list' %}" class="dash-card-link">view all &rarr;</a>
+                </div>
+                <div class="dash-card-body">
+                    <div class="health-grid">
+                        <div class="health-item">
+                            <span class="health-value text-success">{{ installed_components|default:0 }}</span>
+                            <span class="health-label">installed</span>
+                        </div>
+                        <div class="health-item">
+                            <span class="health-value">{{ spare_components|default:0 }}</span>
+                            <span class="health-label">spare</span>
+                        </div>
+                        <div class="health-item">
+                            <span class="health-value text-danger">{{ failed_components|default:0 }}</span>
+                            <span class="health-label">failed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================================================
+                 QUICK NAVIGATION
+                 ====================================================== -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title">quick nav</h3>
+                </div>
+                <div class="dash-card-body">
+                    <div class="quick-nav">
+                        <a href="{% url 'propraetor:assets_list' %}" class="quick-nav-item">
+                            <span class="quick-nav-icon">A</span>
+                            <div class="quick-nav-text">
+                                <span class="quick-nav-title">assets</span>
+                                <span class="quick-nav-count">{{ total_assets|default:0 }} records</span>
+                            </div>
+                        </a>
+                        <a href="{% url 'propraetor:users_list' %}" class="quick-nav-item">
+                            <span class="quick-nav-icon">U</span>
+                            <div class="quick-nav-text">
+                                <span class="quick-nav-title">users</span>
+                                <span class="quick-nav-count">{{ total_employees|default:0 }} records</span>
+                            </div>
+                        </a>
+                        <a href="{% url 'propraetor:components_list' %}" class="quick-nav-item">
+                            <span class="quick-nav-icon">C</span>
+                            <div class="quick-nav-text">
+                                <span class="quick-nav-title">components</span>
+                                <span class="quick-nav-count">{{ total_components|default:0 }} records</span>
+                            </div>
+                        </a>
+                        <a href="{% url 'propraetor:requisition_list' %}" class="quick-nav-item">
+                            <span class="quick-nav-icon">R</span>
+                            <div class="quick-nav-text">
+                                <span class="quick-nav-title">requisitions</span>
+                                <span class="quick-nav-count">{{ pending_requisitions_count|default:0 }} pending</span>
+                            </div>
+                        </a>
+                        <a href="{% url 'propraetor:invoices_list' %}" class="quick-nav-item">
+                            <span class="quick-nav-icon">I</span>
+                            <div class="quick-nav-text">
+                                <span class="quick-nav-title">invoices</span>
+                                <span class="quick-nav-count">{{ total_invoices|default:0 }} records</span>
+                            </div>
+                        </a>
+                        <a href="{% url 'propraetor:locations_list' %}" class="quick-nav-item">
+                            <span class="quick-nav-icon">L</span>
+                            <div class="quick-nav-text">
+                                <span class="quick-nav-title">locations</span>
+                                <span class="quick-nav-count">{{ total_locations|default:0 }} records</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

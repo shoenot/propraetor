@@ -1,0 +1,101 @@
+{% extends base_template %}
+
+{% block title %}invoices.{% endblock %}
+
+{% block content %}
+<div class="detail-breadcrumb">
+    <a href="{% url 'propraetor:dashboard' %}">~</a>
+    <span> / </span>
+    <span>invoices</span>
+</div>
+
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">total_invoices</div>
+        <div class="stat-value">{{ total_invoices|default:0 }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">paid</div>
+        <div class="stat-value">{{ paid_invoices|default:0 }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">partially_paid</div>
+        <div class="stat-value">{{ partially_paid_invoices|default:0 }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">unpaid</div>
+        <div class="stat-value">{{ unpaid_invoices|default:0 }}</div>
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="actions-bar">
+    <div class="actions-left">
+        <div class="search-box">
+            <svg class="search-icon icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input
+                type="text"
+                class="search-input"
+                placeholder="search invoices, vendors, companies..."
+                name="q"
+                hx-get="{{ rows_url }}"
+                hx-trigger="input changed delay:100ms, search"
+                hx-target="#table-container-{{ table_id }}"
+                hx-swap="innerHTML"
+                hx-include="[name='status'], [name='payment_status']"
+            >
+            <span id="search-spinner" class="htmx-indicator">⟳</span>
+        </div>
+
+        
+
+        <select
+            class="filter-select"
+            hx-get="{{ rows_url }}"
+            hx-trigger="change"
+            hx-target="#table-container-{{ table_id }}"
+            hx-swap="innerHTML"
+            name="payment_status"
+        >
+            <option value="">payment_status</option>
+            <option value="unpaid">unpaid</option>
+            <option value="partially_paid">partially_paid</option>
+            <option value="paid">paid</option>
+        </select>
+    </div>
+
+    <div class="actions-right">
+        <a href="{% url 'propraetor:invoice_create' %}" class="btn btn-primary">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 4v16m8-8H4"></path>
+            </svg>
+            new_invoice
+        </a>
+        <button
+            class="btn btn-secondary"
+            hx-get="{% url 'propraetor:invoices_list' %}"
+            hx-target="#table-container-{{ table_id }}"
+            hx-swap="innerHTML"
+            hx-include="[name='q'], [name='status']"
+        >
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            refresh
+        </button>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-container table-section" id="table-container-{{ table_id }}">
+    {% include 'partials/reusable_table.html' %}
+</div>
+
+{% endblock %}

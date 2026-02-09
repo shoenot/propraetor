@@ -1,0 +1,95 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit invoice {{ object.invoice_number }}.{% else %}new invoice.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:invoices_list' %}">invoices</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:invoice_details' object.id %}">{{ object.invoice_number }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_invoice{% else %}new_invoice{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Invoice Details</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.invoice_number %}
+                    {% include 'partials/form_field.html' with field=form.invoice_date %}
+                    {% include 'partials/form_field.html' with field=form.company %}
+                    {% include 'partials/form_field.html' with field=form.vendor %}
+                    {% include 'partials/form_field.html' with field=form.total_amount %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Payment Information</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.payment_status %}
+                    {% include 'partials/form_field.html' with field=form.payment_date %}
+                    {% include 'partials/form_field.html' with field=form.payment_method help="e.g., Cash, Card, Bank, Bkash" %}
+                    {% include 'partials/form_field.html' with field=form.payment_reference help="Transaction ID, receipt ID, etc." %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Receiving</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.received_by %}
+                    {% include 'partials/form_field.html' with field=form.received_date %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Notes</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.notes full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:invoice_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:invoices_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_invoice{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit {{ object.component_tag }}.{% else %}new component.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:components_list' %}">components</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:component_details' object.id %}">{{ object.component_tag }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_component{% else %}new_component{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Component Identification</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.component_tag help="Leave blank to auto-generate (e.g. CM00001)" %}
+                    {% include 'partials/form_field.html' with field=form.component_type %}
+                    {% include 'partials/form_field.html' with field=form.status %}
+                    {% include 'partials/form_field.html' with field=form.manufacturer %}
+                    {% include 'partials/form_field.html' with field=form.model %}
+                    {% include 'partials/form_field.html' with field=form.serial_number %}
+                    {% include 'partials/form_field.html' with field=form.parent_asset help="The asset this component is installed in (leave blank for spare parts)" %}
+                    {% include 'partials/form_field.html' with field=form.specifications full_width=True help="e.g., '16GB', '1TB', 'Intel i7-12700'" %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Dates & Warranty</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.purchase_date %}
+                    {% include 'partials/form_field.html' with field=form.warranty_expiry_date %}
+                    {% include 'partials/form_field.html' with field=form.installation_date %}
+                    {% include 'partials/form_field.html' with field=form.removal_date %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Procurement</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.requisition %}
+                    {% include 'partials/form_field.html' with field=form.invoice %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Notes</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.notes full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:component_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:components_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_component{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

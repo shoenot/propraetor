@@ -1,0 +1,26 @@
+{% for item in items %}
+    {% if forloop.last and items.has_next %}
+    <tr hx-get="{{ rows_url }}?page={{ items.next_page_number }}"
+        hx-trigger="intersect once"
+        hx-swap="afterend"
+        hx-include="[name='q'], [name='status'], [name='sort']">    
+    {% else %}
+    <tr>
+    {% endif %}
+        
+        {# This dynamically loads the specific columns for Assets, Users, etc. #}
+        {% include row_data_template %}
+        
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="100" class="text-center text-muted">No results found.</td>
+    </tr>
+{% endfor %}
+
+{# The OOB Update for the count #}
+<template>
+    <div id="table-count-summary" hx-swap-oob="true">
+        Showing {{ items.end_index }} of {{ items.paginator.count }} total results.
+    </div>
+</template>

@@ -1,0 +1,22 @@
+<td><a href="{% url 'propraetor:asset_details' item.id %}" class="link">{{ item.asset_tag }}</a></td>
+<td>{{ item.asset_type }}</td>
+<td>{{ item.manufacturer }}</td>
+<td>{{ item.model }}</td>
+<td>
+    {% if item.assigned_to %}
+        <a href="{% url 'propraetor:user_details' item.assigned_to.id %}" class="link">{{ item.assigned_to.name }}</a>
+    {% else %}
+        <span class="text-muted">unassigned</span>
+    {% endif %}
+</td>
+<td>{{ item.location.name }}</td>
+<td>
+    <span class="status-badge status-{{ item.status }}">
+        {{ item.get_status_display }}
+    </span>
+</td>
+<td>
+    <div class="action-buttons">
+        edit
+    </div>
+</td>

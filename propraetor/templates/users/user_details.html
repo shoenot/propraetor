@@ -1,0 +1,289 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+{% block title %}user {{ user.name }}.{% endblock %}
+{% block content %}
+<!-- Breadcrumb -->
+<div class="detail-breadcrumb">
+    <a href="{% url 'propraetor:users_list' %}">users</a>
+    <span> / </span>
+    <span>{{ user.name }}</span>
+</div>
+
+<!-- user Header -->
+<div class="detail-header">
+    <div>
+        <h1 class="detail-title">{{ user.name }}</h1>
+        <div class="detail-meta">
+            <span class="status-badge status-{{ user.status }}">{{ user.get_status_display }}</span>
+            {% if user.user_id %}
+                <span class="code-badge">{{ user.user_id }}</span>
+            {% endif %}
+            {% if user.position %}
+                <span class="text-muted">{{ user.position }}</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="detail-header-actions">
+        <a href="{% url 'propraetor:user_edit' user.id %}" class="btn btn-primary">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            edit
+        </a>
+        <button 
+            class="btn btn-secondary"
+            hx-delete="{% url 'propraetor:user_delete' user.id %}"
+            hx-confirm="Are you sure you want to delete {{ user.name }}?" data-confirm-message="Are you sure you want to delete {{ user.name }}?"
+        >
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            delete
+        </button>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <!-- Left Column -->
+    <div class="detail-column">
+        <!-- Personal Information -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Personal Information</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>name</label>
+                    <div class="value">{{ user.name }}</div>
+                </div>
+                {% if user.employee_id %}
+                <div class="field-group">
+                    <label>user_id</label>
+                    <div class="value">{{ user.employee_id }}</div>
+                </div>
+                {% endif %}
+                {% if user.email %}
+                <div class="field-group">
+                    <label>email</label>
+                    <div class="value">
+                        <a href="mailto:{{ user.email }}" class="link">{{ user.email }}</a>
+                    </div>
+                </div>
+                {% endif %}
+                {% if user.phone %}
+                <div class="field-group">
+                    <label>phone</label>
+                    <div class="value">{{ user.phone }}{% if user.extension %} ext. {{ user.extension }}{% endif %}</div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Organization -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Organization</h2>
+            <div class="detail-card-content">
+                {% if user.company %}
+                <div class="field-group">
+                    <label>company</label>
+                    <div class="value">
+                        <a href="{% url 'propraetor:company_details' user.company.id %}" class="link">{{ user.company.name }}</a>
+                    </div>
+                </div>
+                {% endif %}
+                {% if user.department %}
+                <div class="field-group">
+                    <label>department</label>
+                    <div class="value">
+                        <a href="{% url 'propraetor:department_details' user.department.id %}" class="link">{{ user.department.name }}</a>
+                    </div>
+                </div>
+                {% endif %}
+                {% if user.position %}
+                <div class="field-group">
+                    <label>position</label>
+                    <div class="value">{{ user.position }}</div>
+                </div>
+                {% endif %}
+                {% if user.location %}
+                <div class="field-group">
+                    <label>location</label>
+                    <div class="value">
+                        <a href="{% url 'propraetor:location_details' user.location.id %}" class="link">{{ user.location.name }}</a>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="field-group">
+                    <label>status</label>
+                    <div class="value">
+                        <span class="status-badge status-{{ user.status }}">{{ user.get_status_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Timeline</h2>
+            <div class="detail-card-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">created_at</div>
+                            <div class="timeline-value">{{ user.created_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">last_updated</div>
+                            <div class="timeline-value">{{ user.updated_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Right Column -->
+    <div class="detail-column">
+        <!-- Assigned Assets -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Assigned Assets ({{ user.assigned_assets.count }})</h2>
+            <div class="detail-card-content">
+                {% if user.assigned_assets.exists %}
+                    <div class="list-items">
+                        {% for asset in user.assigned_assets.all %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:asset_details' asset.id %}" class="link">{{ asset.asset_tag }}</a>
+                                <div class="text-muted text-sm">
+                                    {{ asset.manufacturer|default:"Unknown" }} {{ asset.model|default:"" }}
+                                </div>
+                            </div>
+                            <span class="status-badge status-{{ asset.status }}">{{ asset.get_status_display }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <span class="text-muted">no assets assigned</span>
+                {% endif %}
+            </div>
+            <div class="action-separator">
+                <a href="{% url 'propraetor:asset_create' %}?assigned_to={{ user.id }}" class="btn btn-primary btn-full">
+                    assign_new_asset
+                </a>
+            </div>
+        </section>
+
+        <!-- Assignment History -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Assignment History</h2>
+            <div class="detail-card-content">
+                {% if user.asset_assignments.exists %}
+                    <div class="timeline">
+                        {% for assignment in user.asset_assignments.all|slice:":5" %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">
+                                    <a href="{% url 'propraetor:asset_details' assignment.asset.id %}" class="link">{{ assignment.asset.asset_tag }}</a>
+                                </div>
+                                <div class="timeline-value">
+                                    {{ assignment.assigned_date|date:"Y-m-d" }}
+                                    {% if assignment.returned_date %}
+                                        → {{ assignment.returned_date|date:"Y-m-d" }}
+                                    {% else %}
+                                        → <span class="text-success">current</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if user.asset_assignments.count > 5 %}
+                        <a href="{% url 'propraetor:assets_list' %}?user={{ user.id }}" class="btn btn-secondary btn-view-all">
+                            view_full_history
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">no assignment history</span>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Requisitions -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Recent Requisitions</h2>
+            <div class="detail-card-content">
+                {% if user.asset_requisitions.exists or user.component_requisitions.exists %}
+                    <div class="list-items">
+                        {% for req in user.asset_requisitions.all|slice:":3" %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:requisition_details' req.id %}" class="link">{{ req.requisition_number }}</a>
+                                <div class="text-muted text-sm">Asset: {{ req.asset_type.name }}</div>
+                            </div>
+                            <span class="status-badge status-{{ req.status }}">{{ req.get_status_display }}</span>
+                        </div>
+                        {% endfor %}
+                        {% for req in user.component_requisitions.all|slice:":3" %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:requisition_details' req.id %}" class="link">{{ req.requisition_number }}</a>
+                                <div class="text-muted text-sm">Component: {{ req.component_type.type_name }}</div>
+                            </div>
+                            <span class="status-badge status-{{ req.status }}">{{ req.get_status_display }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <span class="text-muted">no requisitions</span>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Quick Actions</h2>
+            <div class="detail-card-content">
+                <div class="action-stack">
+                    <a href="{% url 'propraetor:asset_create' %}?assigned_to={{ user.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        assign_asset
+                    </a>
+                    <a href="{% url 'propraetor:requisition_create' %}?user={{ user.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        create_requisition
+                    </a>
+                    {% if user.status == 'active' %}
+                    <button 
+                        class="btn btn-secondary btn-action" 
+                        hx-post="{% url 'propraetor:user_deactivate' user.id %}"
+                        hx-confirm="Deactivate {{ user.name }}?" data-confirm-message="Deactivate {{ user.name }}?"
+                    >
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                        </svg>
+                        deactivate_user
+                    </button>
+                    {% else %}
+                    <button 
+                        class="btn btn-secondary btn-action" 
+                        hx-post="{% url 'propraetor:user_activate' user.id %}"
+                    >
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        activate_user
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

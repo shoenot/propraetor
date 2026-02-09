@@ -1,0 +1,92 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit line item #{{ object.line_number }}.{% else %}new line item{% endif %} — {{ invoice.invoice_number }}.{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:invoices_list' %}">invoices</a>
+        <span> / </span>
+        <a href="{% url 'propraetor:invoice_details' invoice.id %}">{{ invoice.invoice_number }}</a>
+        <span> / </span>
+        {% if editing %}
+            <span>line {{ object.line_number }}</span>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new_line_item</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_line_item{% else %}new_line_item{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.invoice }}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Line Details</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.line_number %}
+                    {% include 'partials/form_field.html' with field=form.item_type %}
+                    {% include 'partials/form_field.html' with field=form.quantity %}
+                    {% include 'partials/form_field.html' with field=form.item_cost %}
+                    {% include 'partials/form_field.html' with field=form.description full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Linked Model / Type</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.asset_model %}
+                    {% include 'partials/form_field.html' with field=form.component_type %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Cost Allocation</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.company %}
+                    {% include 'partials/form_field.html' with field=form.department %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-card-title">Notes</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.notes full_width=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'propraetor:invoice_details' invoice.id %}" class="btn btn-ghost">cancel</a>
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}add_line_item{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

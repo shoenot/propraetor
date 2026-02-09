@@ -1,0 +1,89 @@
+# =============================================================================
+# Tag Prefix Configuration for Propraetor
+# =============================================================================
+#
+# Controls how asset and component tags are auto-generated.
+#
+# RESOLUTION ORDER (most specific wins):
+#   1. Department-level prefix  → [companies.<CODE>.departments.<NAME>]
+#   2. Company-level prefix     → [companies.<CODE>]
+#   3. Global default           → [defaults]
+#
+# TAG FORMAT:
+#   {prefix}{separator}{zero-padded sequence number}
+#
+#   Examples (with the settings below):
+#     Asset tag:     GW00001, GW00002, …
+#     Component tag: CM00001, CM00002, …
+#
+#   With separator = "-":
+#     Asset tag:     GW-00001
+#     Component tag: CM-00001
+#
+# NOTES:
+#   - Prefixes are NEVER derived from asset type, model, or component type.
+#   - Company codes used here must match Company.code values exactly.
+#   - Department names must match Department.name values exactly.
+#   - Changes to this file take effect on the next tag generation (no restart
+#     required). Existing tags are never modified.
+#   - If this file is missing or unreadable, built-in fallback defaults are
+#     used ("ASSET" for assets, "COMP" for components).
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# General tag formatting settings
+# -----------------------------------------------------------------------------
+[tag_settings]
+
+# Number of digits in the numeric portion, zero-padded.
+#   5 → 00001 … 99999
+#   6 → 000001 … 999999
+sequence_digits = 5
+
+# Separator placed between the prefix and the sequence number.
+#   ""  → GW00001
+#   "-" → GW-00001
+separator = ""
+
+
+# -----------------------------------------------------------------------------
+# Global default prefixes (always required)
+# -----------------------------------------------------------------------------
+# These apply to ALL assets and components unless overridden below.
+# -----------------------------------------------------------------------------
+[defaults]
+asset = "AS"
+component = "CM"
+
+
+# -----------------------------------------------------------------------------
+# Company-level overrides (optional)
+# -----------------------------------------------------------------------------
+# Uncomment and duplicate the blocks below as needed. The table key after
+# "companies." must match the Company.code field exactly (case-sensitive).
+#
+# You can override just one entity type — the other falls back to [defaults].
+#
+# [companies.ACME]
+# asset = "AC"
+# component = "AX"
+#
+# [companies.GLOBEX]
+# asset = "GX"
+# # component not specified → falls back to defaults.component ("CM")
+
+
+# -----------------------------------------------------------------------------
+# Department-level overrides (optional)
+# -----------------------------------------------------------------------------
+# Nested under the company. The key after "departments." must match the
+# Department.name field exactly (case-sensitive).
+#
+# [companies.ACME.departments.Engineering]
+# asset = "AE"
+# component = "AEC"
+#
+# [companies.ACME.departments.Finance]
+# asset = "AF"
+# # component not specified → falls back to companies.ACME.component ("AX"),

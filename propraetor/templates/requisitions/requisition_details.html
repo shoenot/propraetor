@@ -1,0 +1,457 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+
+{% block title %}requisition {{ requisition.requisition_number }}.{% endblock %}
+
+{% block content %}
+    <div class="detail-breadcrumb">
+        <a href="{% url 'propraetor:requisition_list' %}">requisitions</a>
+        <span> / </span>
+        <span>{{ requisition.requisition_number }}</span>
+    </div>
+
+    <!-- Requisition Header -->
+    <div class="detail-header">
+        <div>
+            <h1 class="detail-title">
+                {{ requisition.requisition_number }}
+            </h1>
+            <div class="detail-meta">
+                <span class="status-badge status-{{ requisition.status }}">{{ requisition.get_status_display }}</span>
+                {% if requisition.priority %}
+                    <span class="priority-badge priority-{{ requisition.priority }}">{{ requisition.get_priority_display }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="detail-header-actions">
+            <a href="{% url 'propraetor:requisition_edit' requisition.id %}" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414
+                             a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                    </path>
+                </svg>
+                edit
+            </a>
+            <button
+                class="btn btn-secondary"
+                hx-delete="{% url 'propraetor:requisition_delete' requisition.id %}"
+                hx-confirm="Are you sure you want to delete requisition {{ requisition.requisition_number }}?" data-confirm-message="Are you sure you want to delete requisition {{ requisition.requisition_number }}?"
+            >
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862
+                             a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4
+                             a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
+                </svg>
+                delete
+            </button>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <!-- Left Column -->
+        <div class="detail-column">
+            <!-- Basic Information -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Basic Information</h2>
+                <div class="detail-card-content">
+                    <div class="field-group">
+                        <label>requisition_number</label>
+                        <div class="value">{{ requisition.requisition_number }}</div>
+                    </div>
+                    <div class="field-group">
+                        <label>requisition_date</label>
+                        <div class="value">{{ requisition.requisition_date|date:"Y-m-d" }}</div>
+                    </div>
+                </div>
+            </section>
+
+            {% if requisition.specifications %}
+            <section class="detail-card">
+                <h2 class="detail-card-title">Specifications</h2>
+                <div class="detail-card-content">
+                    {% if requisition.specifications.items %}
+                        {% for key, value in requisition.specifications.items %}
+                        <div class="field-group">
+                            <label>{{ key }}</label>
+                            <div class="value">{{ value }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="field-group">
+                            <label>specifications</label>
+                            <div class="value text-pre-wrap">
+                                {{ requisition.specifications }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Request Context -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Request Context</h2>
+                <div class="detail-card-content">
+                    <div class="field-group">
+                        <label>priority</label>
+                        <div class="value">
+                            {% if requisition.priority %}
+                                <span class="priority-badge priority-{{ requisition.priority }}">{{ requisition.get_priority_display }}</span>
+                            {% else %}
+                                <span class="text-muted">not_set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>status</label>
+                        <div class="value">
+                            <span class="status-badge status-{{ requisition.status }}">
+                                {{ requisition.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notes -->
+            {% if requisition.notes %}
+            <section class="detail-card">
+                <h2 class="detail-card-title">Notes</h2>
+                <div class="detail-card-content">
+                    <div class="notes-content">{{ requisition.notes }}</div>
+                </div>
+            </section>
+            {% endif %}
+
+            {% if requisition.cancellation_reason %}
+            <section class="detail-card">
+                <h2 class="detail-card-title">Cancellation</h2>
+                <div class="detail-card-content">
+                    <div class="notes-content">{{ requisition.cancellation_reason }}</div>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+
+        <!-- Right Column -->
+        <div class="detail-column">
+            <!-- People & Org -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">People & Organization</h2>
+                <div class="detail-card-content">
+                    <div class="field-group">
+                        <label>requested_by</label>
+                        <div class="value">
+                            {% if requisition.requested_by %}
+                                <a href="{% url 'propraetor:user_details' requisition.requested_by.id %}" class="link">
+                                    {{ requisition.requested_by }}
+                                </a>
+                                {% if requisition.requested_by.email %}
+                                    <div class="text-muted text-sm mt-tiny">
+                                        {{ requisition.requested_by.email }}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">not_set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>approved_by</label>
+                        <div class="value">
+                            {% if requisition.approved_by %}
+                                <a href="{% url 'propraetor:user_details' requisition.approved_by.id %}" class="link">
+                                    {{ requisition.approved_by }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">not_set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>department</label>
+                        <div class="value">
+                            {% if requisition.department %}
+                                <a href="{% url 'propraetor:department_details' requisition.department.id %}" class="link">
+                                    {{ requisition.department.name }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">not_set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>company</label>
+                        <div class="value">
+                            {% if requisition.company %}
+                                <a href="{% url 'propraetor:company_details' requisition.company.id %}" class="link">
+                                    {{ requisition.company.name }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">not_set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fulfillment -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Fulfillment</h2>
+                <div class="detail-card-content">
+                    <div class="field-group">
+                        <label>fulfilled_date</label>
+                        <div class="value">
+                            {% if requisition.fulfilled_date %}
+                                {{ requisition.fulfilled_date|date:"Y-m-d" }}
+                            {% else %}
+                                <span class="text-muted">not_fulfilled</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Requisition Items -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">
+                    Items ({{ requisition.items.count }})
+                </h2>
+                <div class="detail-card-content">
+                    {% if requisition.items.exists %}
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>type</th>
+                                        <th>item</th>
+                                        <th>date</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in requisition.items.all %}
+                                    <tr>
+                                        <td>
+                                            <span class="status-badge status-{{ item.item_type }}">{{ item.get_item_type_display }}</span>
+                                        </td>
+                                        <td>
+                                            {% if item.item_type == "asset" and item.asset %}
+                                                <a href="{% url 'propraetor:asset_details' item.asset.id %}" class="link">
+                                                    {{ item.asset.asset_tag }} — {{ item.asset.asset_model }}
+                                                </a>
+                                            {% elif item.item_type == "component" and item.component %}
+                                                <a href="{% url 'propraetor:component_details' item.component.id %}" class="link">
+                                                    {{ item.component.component_tag }} — {{ item.component.component_type }}
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">unlinked</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ item.created_at|date:"Y-m-d" }}</td>
+                                        <td>
+                                            {% if requisition.status != "fulfilled" %}
+                                            <button
+                                                class="btn btn-ghost btn-sm"
+                                                hx-delete="{% url 'propraetor:requisition_item_delete' item.id %}"
+                                                hx-confirm="Remove this item from the requisition?" data-confirm-message="Remove this item from the requisition?"
+                                            >
+                                                &times;
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <span class="text-muted">no items added yet</span>
+                    {% endif %}
+                </div>
+
+                {% if requisition.status != "fulfilled" and requisition.status != "cancelled" %}
+                <div class="action-separator">
+                    <form method="post" action="{% url 'propraetor:requisition_item_create' requisition.id %}" class="form-stack" id="item-form">
+                        {% csrf_token %}
+                        {{ item_form.requisition }}
+
+                        <h3 class="text-sm fw-semibold" style="margin:0 0 0.25rem;">Add existing item</h3>
+
+                        <div class="form-grid form-grid-compact">
+                            {% include 'partials/form_field.html' with field=item_form.item_type %}
+                        </div>
+
+                        <div class="form-grid" id="item-asset-field" style="display:none;">
+                            {% include 'partials/form_field.html' with field=item_form.asset %}
+                        </div>
+
+                        <div class="form-grid" id="item-component-field" style="display:none;">
+                            {% include 'partials/form_field.html' with field=item_form.component %}
+                        </div>
+
+                        <div class="form-grid form-grid-compact">
+                            {% include 'partials/form_field.html' with field=item_form.notes full_width=True %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full" id="item-submit">
+                            add_item
+                        </button>
+                    </form>
+
+                    <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);">
+                        <h3 class="text-sm fw-semibold" style="margin:0 0 0.25rem;">Or create a new item</h3>
+                        <div class="text-muted text-sm" style="margin-bottom: 0.5rem;">
+                            Create a new asset or component first, then come back to add it.
+                        </div>
+                        <div class="action-stack">
+                            <a class="btn btn-secondary btn-action" href="{% url 'propraetor:asset_create' %}?requisition={{ requisition.id }}">
+                                create_asset
+                            </a>
+                            <a class="btn btn-secondary btn-action" href="{% url 'propraetor:component_create' %}?requisition={{ requisition.id }}">
+                                create_component
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+
+            <!-- Timeline -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Timeline</h2>
+                <div class="detail-card-content">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">created_at</div>
+                                <div class="timeline-value">
+                                    {% if requisition.created_at %}
+                                        {{ requisition.created_at|date:"Y-m-d H:i" }}
+                                    {% else %}
+                                        <span class="text-muted">unknown</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">last_updated</div>
+                                <div class="timeline-value">
+                                    {% if requisition.updated_at %}
+                                        {{ requisition.updated_at|date:"Y-m-d H:i" }}
+                                    {% else %}
+                                        <span class="text-muted">unknown</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% if requisition.fulfilled_date %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">fulfilled</div>
+                                <div class="timeline-value">
+                                    {{ requisition.fulfilled_date|date:"Y-m-d" }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="detail-card">
+                <h2 class="detail-card-title">Quick Actions</h2>
+                <div class="detail-card-content">
+                    <div class="action-stack">
+                        {% if requisition.status != "fulfilled" %}
+                        <button
+                            class="btn btn-secondary btn-action"
+                            hx-post="{% url 'propraetor:requisition_fulfill' requisition.id %}"
+                            hx-confirm="Mark requisition {{ requisition.requisition_number }} as fulfilled?" data-confirm-message="Mark requisition {{ requisition.requisition_number }} as fulfilled?"
+                        >
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 8v4l3 3m6-3a9 9 0
+                                         11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+                            mark_as_fulfilled
+                        </button>
+                        {% endif %}
+
+                        {% if requisition.status != "cancelled" %}
+                        <button
+                            class="btn btn-secondary btn-action"
+                            hx-post="{% url 'propraetor:requisition_cancel' requisition.id %}"
+                            hx-confirm="Cancel requisition {{ requisition.requisition_number }}?" data-confirm-message="Cancel requisition {{ requisition.requisition_number }}?"
+                        >
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M6 18L18 6M6 6l12 12">
+                                </path>
+                            </svg>
+                            cancel_requisition
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+<script>
+(function() {
+    var itemTypeSelect = document.getElementById('id_item_type');
+    if (!itemTypeSelect) return;
+
+    var assetFieldWrapper = document.getElementById('item-asset-field');
+    var componentFieldWrapper = document.getElementById('item-component-field');
+    var assetInput = document.getElementById('id_asset');
+    var componentInput = document.getElementById('id_component');
+
+    function clearSearchableSelect(selectEl) {
+        if (!selectEl) return;
+        // Clear the hidden <select> value (used for form submission)
+        selectEl.value = '';
+        // Also clear the visible searchable-select input and hide the clear button
+        var container = selectEl.closest('.ss-container');
+        if (container) {
+            var ssInput = container.querySelector('.ss-search');
+            var ssClear = container.querySelector('.ss-clear');
+            if (ssInput) ssInput.value = '';
+            if (ssClear) ssClear.style.display = 'none';
+        }
+    }
+
+    function toggleItemFields() {
+        var val = itemTypeSelect.value;
+
+        if (assetFieldWrapper) {
+            assetFieldWrapper.style.display = (val === 'asset') ? '' : 'none';
+        }
+        if (componentFieldWrapper) {
+            componentFieldWrapper.style.display = (val === 'component') ? '' : 'none';
+        }
+
+        // Clear the hidden field so we don't submit stale selections
+        if (val !== 'asset') clearSearchableSelect(assetInput);
+        if (val !== 'component') clearSearchableSelect(componentInput);
+    }
+
+    itemTypeSelect.addEventListener('change', toggleItemFields);
+    toggleItemFields();
+})();
+</script>
+<br>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends base_template %}
+
+{% block title %}{% if editing %}edit component type {{ object.type_name }}.{% else %}new component type.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-breadcrumb">
+        <a href="{% url 'propraetor:component_types_list' %}">component_types</a>
+        <span> / </span>
+        {% if editing %}
+            <a href="{% url 'propraetor:component_type_details' object.id %}">{{ object.type_name }}</a>
+            <span> / </span>
+            <span>edit</span>
+        {% else %}
+            <span>new</span>
+        {% endif %}
+    </div>
+
+    <div class="form-header">
+        <h1>> {% if editing %}edit_component_type{% else %}new_component_type{% endif %}</h1>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="form-errors-banner">
+        <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2 class="form-card-title">Type Details</h2>
+            <div class="form-card-content">
+                <div class="form-grid">
+                    {% include 'partials/form_field.html' with field=form.type_name help="e.g., CPU, RAM, SSD, NIC, GPU" %}
+                    {% include 'partials/form_field.html' with field=form.attributes full_width=True help="Optional JSON attributes for this type (e.g., {\"socket\": \"LGA1700\", \"form_factor\": \"M.2\"})" %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {% if editing %}
+                <a href="{% url 'propraetor:component_type_details' object.id %}" class="btn btn-ghost">cancel</a>
+            {% else %}
+                <a href="{% url 'propraetor:component_types_list' %}" class="btn btn-ghost">cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% if editing %}save_changes{% else %}create_component_type{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

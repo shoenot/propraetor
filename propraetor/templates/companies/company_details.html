@@ -1,0 +1,348 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+
+{% block title %}company {{ company.name }}.{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="detail-breadcrumb">
+    <a href="{% url 'propraetor:companies_list' %}">companies</a>
+    <span> / </span>
+    <span>{{ company.name }}</span>
+</div>
+
+<!-- Company Header -->
+<div class="detail-header">
+    <div>
+        <h1 class="detail-title">{{ company.name }}</h1>
+        <div class="detail-meta">
+            {% if company.code %}
+                <span class="text-muted">{{ company.code }}</span>
+            {% endif %}
+            {% if company.city and company.country %}
+                <span class="text-muted">{{ company.city }}, {{ company.country }}</span>
+            {% elif company.city %}
+                <span class="text-muted">{{ company.city }}</span>
+            {% elif company.country %}
+                <span class="text-muted">{{ company.country }}</span>
+            {% endif %}
+            <span class="status-badge {% if company.is_active %}status-active{% else %}status-inactive{% endif %}">
+                {% if company.is_active %}active{% else %}inactive{% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="detail-header-actions">
+        <a href="{% url 'propraetor:company_edit' company.id %}" class="btn btn-primary">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            edit
+        </a>
+        <button
+            class="btn btn-secondary"
+            hx-delete="{% url 'propraetor:company_delete' company.id %}"
+            hx-confirm="Are you sure you want to delete company '{{ company.name }}'? This will also affect {{ company.departments.count }} department(s), {{ company.employees.count }} employee(s), and {{ company.assets.count }} asset(s)." data-confirm-message="Are you sure you want to delete company '{{ company.name }}'? This will also affect {{ company.departments.count }} department(s), {{ company.employees.count }} employee(s), and {{ company.assets.count }} asset(s)."
+        >
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            delete
+        </button>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <!-- Left Column -->
+    <div class="detail-column">
+        <!-- Company Information -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Company Information</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>name</label>
+                    <div class="value">{{ company.name }}</div>
+                </div>
+
+                <div class="field-group">
+                    <label>code</label>
+                    <div class="value">
+                        {% if company.code %}
+                            {{ company.code }}
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>status</label>
+                    <div class="value">
+                        <span class="status-badge {% if company.is_active %}status-active{% else %}status-inactive{% endif %}">
+                            {% if company.is_active %}active{% else %}inactive{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {% if company.phone %}
+                <div class="field-group">
+                    <label>phone</label>
+                    <div class="value">{{ company.phone }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Address -->
+        {% if company.address or company.city or company.zip or company.country %}
+        <section class="detail-card">
+            <h2 class="detail-card-title">Address</h2>
+            <div class="detail-card-content">
+                {% if company.address %}
+                <div class="field-group">
+                    <label>address</label>
+                    <div class="value">{{ company.address }}</div>
+                </div>
+                {% endif %}
+                {% if company.city %}
+                <div class="field-group">
+                    <label>city</label>
+                    <div class="value">{{ company.city }}</div>
+                </div>
+                {% endif %}
+                {% if company.zip %}
+                <div class="field-group">
+                    <label>zip</label>
+                    <div class="value">{{ company.zip }}</div>
+                </div>
+                {% endif %}
+                {% if company.country %}
+                <div class="field-group">
+                    <label>country</label>
+                    <div class="value">{{ company.country }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Statistics -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Statistics</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>total_departments</label>
+                    <div class="value">{{ company.departments.count }}</div>
+                </div>
+                <div class="field-group">
+                    <label>total_employees</label>
+                    <div class="value">{{ company.employees.count }}</div>
+                </div>
+                <div class="field-group">
+                    <label>total_assets</label>
+                    <div class="value">{{ company.assets.count }}</div>
+                </div>
+                <div class="field-group">
+                    <label>total_invoices</label>
+                    <div class="value">{{ company.purchase_invoices.count }}</div>
+                </div>
+                <div class="field-group">
+                    <label>total_requisitions</label>
+                    <div class="value">{{ company.requisitions.count }}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notes -->
+        {% if company.notes %}
+        <section class="detail-card">
+            <h2 class="detail-card-title">Notes</h2>
+            <div class="detail-card-content">
+                <div class="notes-content">
+                    {{ company.notes }}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Timeline -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Timeline</h2>
+            <div class="detail-card-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">created_at</div>
+                            <div class="timeline-value">{{ company.created_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">last_updated</div>
+                            <div class="timeline-value">{{ company.updated_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Right Column -->
+    <div class="detail-column">
+        <!-- Departments -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Departments ({{ company.departments.count }})</h2>
+            <div class="detail-card-content">
+                {% if company.departments.exists %}
+                    <div class="list-items">
+                        {% for dept in company.departments.all|slice:":10" %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:department_details' dept.id %}" class="link">{{ dept.name }}</a>
+                                {% if dept.default_location %}
+                                    <div class="text-muted text-sm">{{ dept.default_location.name }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if company.departments.count > 10 %}
+                        <a href="{% url 'propraetor:departments_list' %}?q={{ company.code|default:company.name }}" class="btn btn-secondary btn-view-all">
+                            view_all_departments
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">no departments</span>
+                {% endif %}
+            </div>
+            <div class="action-separator">
+                <a href="{% url 'propraetor:department_create' %}?company={{ company.id }}" class="btn btn-primary btn-full">
+                    add_department
+                </a>
+            </div>
+        </section>
+
+        <!-- Employees -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Employees ({{ company.employees.count }})</h2>
+            <div class="detail-card-content">
+                {% if company.employees.exists %}
+                    <div class="list-items">
+                        {% for employee in company.employees.all|slice:":10" %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:user_details' employee.id %}" class="link">{{ employee.name }}</a>
+                                {% if employee.position %}
+                                    <div class="text-muted text-sm">{{ employee.position }}</div>
+                                {% endif %}
+                            </div>
+                            <span class="status-badge status-{{ employee.status }}">{{ employee.get_status_display }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if company.employees.count > 10 %}
+                        <a href="{% url 'propraetor:users_list' %}?q={{ company.code|default:company.name }}" class="btn btn-secondary btn-view-all">
+                            view_all_employees
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">no employees</span>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Assets -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Assets ({{ company.assets.count }})</h2>
+            <div class="detail-card-content">
+                {% if company.assets.exists %}
+                    <div class="list-items">
+                        {% for asset in company.assets.all|slice:":10" %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:asset_details' asset.id %}" class="link">{{ asset.asset_tag }}</a>
+                                <div class="text-muted text-sm">{{ asset.asset_model }}</div>
+                            </div>
+                            <span class="status-badge status-{{ asset.status }}">{{ asset.get_status_display }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if company.assets.count > 10 %}
+                        <a href="{% url 'propraetor:assets_list' %}?q={{ company.code|default:company.name }}" class="btn btn-secondary btn-view-all">
+                            view_all_assets
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">no assets</span>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Invoices -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Invoices ({{ company.purchase_invoices.count }})</h2>
+            <div class="detail-card-content">
+                {% if company.purchase_invoices.exists %}
+                    <div class="list-items">
+                        {% for invoice in company.purchase_invoices.all|slice:":10" %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:invoice_details' invoice.id %}" class="link">{{ invoice.invoice_number }}</a>
+                                <div class="text-muted text-sm">
+                                    {{ invoice.invoice_date|date:"Y-m-d" }} &mdash; {{ invoice.total_amount }}
+                                </div>
+                            </div>
+                            <span class="status-badge status-{{ invoice.payment_status }}">
+                                {{ invoice.get_payment_status_display }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if company.purchase_invoices.count > 10 %}
+                        <a href="{% url 'propraetor:invoices_list' %}?q={{ company.code|default:company.name }}" class="btn btn-secondary btn-view-all">
+                            view_all_invoices
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">no invoices</span>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Quick Actions</h2>
+            <div class="detail-card-content">
+                <div class="action-stack">
+                    <a href="{% url 'propraetor:department_create' %}?company={{ company.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        add_department
+                    </a>
+                    <a href="{% url 'propraetor:user_create' %}?company={{ company.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                        add_employee
+                    </a>
+                    <a href="{% url 'propraetor:requisition_create' %}?company={{ company.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        create_requisition
+                    </a>
+                    <a href="{% url 'propraetor:invoice_create' %}?company={{ company.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        create_invoice
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<br>
+{% endblock %}

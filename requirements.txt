@@ -1,0 +1,20 @@
+# ==============================================================================
+# Propraetor — Python Dependencies
+# ==============================================================================
+
+# Core
+Django>=5.0,<6.0
+django-htmx>=1.17,<2.0
+python-dotenv==1.2.1
+
+# Production WSGI server
+gunicorn>=22.0,<24.0
+
+# Static file serving in production (optional but recommended)
+whitenoise>=6.5,<7.0
+
+# Development tools are now in requirements-dev.txt
+
+# Database drivers (uncomment as needed)
+# psycopg2-binary>=2.9,<3.0       # PostgreSQL
+# mysqlclient>=2.2,<3.0           # MySQL / MariaDB

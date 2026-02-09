@@ -1,0 +1,175 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+
+{% block title %}department {{ department.name }}.{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="detail-breadcrumb">
+    <a href="{% url 'propraetor:departments_list' %}">departments</a>
+    <span> / </span>
+    <span>{{ department.name }}</span>
+</div>
+
+<!-- Department Header -->
+<div class="detail-header">
+    <div>
+        <h1 class="detail-title">{{ department.name }}</h1>
+        <div class="detail-meta">
+            <span class="text-muted">{{ department.company }}</span>
+            {% if department.default_location %}
+                <span class="text-muted">{{ department.default_location.name }}</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="detail-header-actions">
+        <a href="{% url 'propraetor:department_edit' department.id %}" class="btn btn-primary">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            edit
+        </a>
+        <button
+            class="btn btn-secondary"
+            hx-delete="{% url 'propraetor:department_delete' department.id %}"
+            hx-confirm="Are you sure you want to delete department '{{ department.name }}'? This will also affect {{ department.employees.count }} employee(s)." data-confirm-message="Are you sure you want to delete department '{{ department.name }}'? This will also affect {{ department.employees.count }} employee(s)."
+        >
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            delete
+        </button>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <!-- Left Column -->
+    <div class="detail-column">
+        <!-- Department Information -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Department Information</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>name</label>
+                    <div class="value">{{ department.name }}</div>
+                </div>
+                <div class="field-group">
+                    <label>company</label>
+                    <div class="value">
+                        {{ department.company.name|default:department.company.code }}
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label>default_location</label>
+                    <div class="value">
+                        {% if department.default_location %}
+                            <a href="{% url 'propraetor:location_details' department.default_location.id %}" class="link">
+                                {{ department.default_location.name }}
+                            </a>
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Statistics</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>total_employees</label>
+                    <div class="value">{{ department.employees.count }}</div>
+                </div>
+                <div class="field-group">
+                    <label>active_employees</label>
+                    <div class="value">{{ department.employees.all|length }}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Timeline</h2>
+            <div class="detail-card-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">created_at</div>
+                            <div class="timeline-value">{{ department.created_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">last_updated</div>
+                            <div class="timeline-value">{{ department.updated_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Right Column -->
+    <div class="detail-column">
+        <!-- Employees in Department -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Employees ({{ department.employees.count }})</h2>
+            <div class="detail-card-content">
+                {% if department.employees.exists %}
+                    <div class="list-items">
+                        {% for employee in department.employees.all|slice:":10" %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:user_details' employee.id %}" class="link">{{ employee.name }}</a>
+                                {% if employee.position %}
+                                    <div class="text-muted text-sm">{{ employee.position }}</div>
+                                {% endif %}
+                            </div>
+                            <span class="status-badge status-{{ employee.status }}">{{ employee.get_status_display }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if department.employees.count > 10 %}
+                        <a href="{% url 'propraetor:users_list' %}?department={{ department.id }}" class="btn btn-secondary btn-view-all">
+                            view_all_employees
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">no employees in this department</span>
+                {% endif %}
+            </div>
+            <div class="action-separator">
+                <a href="{% url 'propraetor:user_create' %}?department={{ department.id }}" class="btn btn-primary btn-full">
+                    add_employee
+                </a>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Quick Actions</h2>
+            <div class="detail-card-content">
+                <div class="action-stack">
+                    <a href="{% url 'propraetor:user_create' %}?department={{ department.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                        add_employee
+                    </a>
+                    <a href="{% url 'propraetor:requisition_create' %}?department={{ department.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        create_requisition
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<br>
+{% endblock %}

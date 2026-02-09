@@ -1,0 +1,191 @@
+{% extends base_template %}
+{% block main_extra_class %}details-page{% endblock %}
+
+{% block title %}category {{ category.name }}.{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="detail-breadcrumb">
+    <a href="{% url 'propraetor:categories_list' %}">categories</a>
+    <span> / </span>
+    <span>{{ category.name }}</span>
+</div>
+
+<!-- Category Header -->
+<div class="detail-header">
+    <div>
+        <h1 class="detail-title">{{ category.name }}</h1>
+        <div class="detail-meta">
+            <span class="text-muted">{{ category.models.count }} model{{ category.models.count|pluralize }}</span>
+        </div>
+    </div>
+    <div class="detail-header-actions">
+        <a href="{% url 'propraetor:category_edit' category.id %}" class="btn btn-primary">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            edit
+        </a>
+        <button
+            class="btn btn-secondary"
+            hx-delete="{% url 'propraetor:category_delete' category.id %}"
+            hx-confirm="Are you sure you want to delete category '{{ category.name }}'? This may affect {{ category.models.count }} asset model(s)." data-confirm-message="Are you sure you want to delete category '{{ category.name }}'? This may affect {{ category.models.count }} asset model(s)."
+        >
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            delete
+        </button>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <!-- Left Column -->
+    <div class="detail-column">
+        <!-- Category Information -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Category Information</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>name</label>
+                    <div class="value">{{ category.name }}</div>
+                </div>
+
+                <div class="field-group">
+                    <label>description</label>
+                    <div class="value">
+                        {% if category.description %}
+                            {{ category.description }}
+                        {% else %}
+                            <span class="text-muted">not_set</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Statistics</h2>
+            <div class="detail-card-content">
+                <div class="field-group">
+                    <label>total_models</label>
+                    <div class="value">{{ category.models.count }}</div>
+                </div>
+                <div class="field-group">
+                    <label>total_requisitions</label>
+                    <div class="value">{{ category.requisitions.count }}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Timeline</h2>
+            <div class="detail-card-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">created_at</div>
+                            <div class="timeline-value">{{ category.created_at|date:"Y-m-d H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Right Column -->
+    <div class="detail-column">
+        <!-- Asset Models -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Asset Models ({{ category.models.count }})</h2>
+            <div class="detail-card-content">
+                {% if category.models.exists %}
+                    <div class="list-items">
+                        {% for model in category.models.all|slice:":15" %}
+                        <div class="list-item">
+                            <div>
+                                <a href="{% url 'propraetor:asset_model_details' model.id %}" class="link">
+                                    {% if model.manufacturer %}{{ model.manufacturer }} {% endif %}{{ model.model_name }}
+                                </a>
+                                {% if model.model_number %}
+                                    <div class="text-muted text-sm">{{ model.model_number }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="text-muted text-sm">
+                                {{ model.asset_count }} asset{{ model.asset_count|pluralize }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if category.models.count > 15 %}
+                        <a href="{% url 'propraetor:asset_models_list' %}?q={{ category.name }}" class="btn btn-secondary btn-view-all">
+                            view_all_models
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">no asset models in this category</span>
+                {% endif %}
+            </div>
+            <div class="action-separator">
+                <a href="{% url 'propraetor:asset_model_create' %}?category={{ category.id }}" class="btn btn-primary btn-full">
+                    add_asset_model
+                </a>
+            </div>
+        </section>
+
+        <!-- Requisitions -->
+        {% if category.requisitions.exists %}
+        <section class="detail-card">
+            <h2 class="detail-card-title">Requisitions ({{ category.requisitions.count }})</h2>
+            <div class="detail-card-content">
+                <div class="list-items">
+                    {% for req in category.requisitions.all|slice:":10" %}
+                    <div class="list-item">
+                        <div>
+                            <a href="{% url 'propraetor:requisition_details' req.id %}" class="link">{{ req.requisition_number }}</a>
+                            <div class="text-muted text-sm">
+                                {{ req.requisition_date|date:"Y-m-d" }} &mdash; qty: {{ req.quantity }}
+                            </div>
+                        </div>
+                        <span class="status-badge status-{{ req.status }}">
+                            {{ req.get_status_display }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if category.requisitions.count > 10 %}
+                    <a href="{% url 'propraetor:requisition_list' %}?q={{ category.name }}" class="btn btn-secondary btn-view-all">
+                        view_all_requisitions
+                    </a>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <section class="detail-card">
+            <h2 class="detail-card-title">Quick Actions</h2>
+            <div class="detail-card-content">
+                <div class="action-stack">
+                    <a href="{% url 'propraetor:asset_model_create' %}?category={{ category.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        add_asset_model
+                    </a>
+                    <a href="{% url 'propraetor:requisition_create' %}?asset_type={{ category.id }}" class="btn btn-secondary btn-action">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        create_requisition
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<br>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% for row in rows %}
+    {% if lazy_load and forloop.last and items.has_next %}
+    {# Lazy loading trigger on last row #}
+    <tr hx-get="{{ rows_url }}?page={{ items.next_page_number }}"
+        hx-trigger="intersect once"
+        hx-target="this"
+        hx-swap="afterend"
+        hx-include="[name='q'], [name='status'], [name='sort'], [name='visible_columns']:checked">
+    {% else %}
+    <tr>
+    {% endif %}
+        
+        {% for cell in row.cells %}
+            {% if cell.type == 'checkbox' %}
+                {# Bulk select checkbox #}
+                <td class="text-{{ cell.align|default:'center' }}">
+                    <input type="checkbox" 
+                           class="row-select" 
+                           value="{{ cell.value }}"
+                           aria-label="Select row">
+                </td>
+            {% elif cell.template %}
+                {# Custom template for cell #}
+                <td class="text-{{ cell.align|default:'left' }}">
+                    {% include cell.template with item=row.item value=cell.value %}
+                </td>
+            {% elif cell.badge %}
+                {# Badge cell (e.g., for status) #}
+                <td class="text-{{ cell.align|default:'left' }}">
+                    <span class="status-badge {{ cell.badge_class }}">
+                        {{ cell.value }}
+                    </span>
+                </td>
+            {% elif cell.link %}
+                {# Linked cell #}
+                <td class="text-{{ cell.align|default:'left' }}">
+                    <a href="{{ cell.link }}" class="link">
+                        {{ cell.value|default:"-" }}
+                    </a>
+                </td>
+            {% else %}
+                {# Regular cell #}
+                <td class="text-{{ cell.align|default:'left' }}">
+                    {% if cell.value %}
+                        {{ cell.value }}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+            {% endif %}
+        {% endfor %}
+        
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="100" class="text-center text-muted p-lg">
+            No results found.
+        </td>
+    </tr>
+{% endfor %}
+
+{# Update count summary via script since OOB elements get stripped in table-row context #}
+{% if items %}
+<script>
+    (function() {
+        var el = document.getElementById("table-count-summary-{{ table_id }}");
+        if (el) {
+            // Always start at 1 since all rows from the first page remain visible
+            el.textContent = "Showing 1–{{ items.end_index }} of {{ total_count }}";
+        }
+    })();
+</script>
+{% endif %}
