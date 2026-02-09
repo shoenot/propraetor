@@ -1,5 +1,5 @@
 <div align="left">
-<img width="2099" height="300" alt="Frame 1" src="wordmark.png" />
+<img width="2099" height="300" alt="Frame 1" src="images/wordmark.png" />
 
 **/pɹəʊˈpɹiːtɔː/** · Latin *propraetor*, a magistrate sent to govern a province.
 
