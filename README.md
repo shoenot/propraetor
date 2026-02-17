@@ -91,29 +91,29 @@ Every list view uses a shared, reusable table engine (`ReusableTable`):
 
 ---
 
-# Deployment
+## Deployment
 
 Propraetor is distributed as a Docker image and is designed to run behind your own reverse proxy (nginx, Caddy, Traefik, etc.). The app binds to `127.0.0.1:9000` and is never exposed directly to the network.
 
-## Prerequisites
+### Prerequisites
 
 - Docker 24+ with the Compose plugin (`docker compose`, not `docker-compose`)
 - A reverse proxy configured to forward traffic to `127.0.0.1:9000`
 
-## Quick Start
+### Quick Start
 
 1. **Grab the compose files**
 
    ```sh
    curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/docker-compose.deploy.yml
    curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/docker-compose.prod.yml
-   curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/.env.example
+   curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/env.example
    ```
 
 2. **Configure your environment**
 
    ```sh
-   cp .env.example .env
+   cp env.example .env
    $EDITOR .env
    ```
 
@@ -129,7 +129,7 @@ Propraetor is distributed as a Docker image and is designed to run behind your o
 
 Propraetor is now running on `127.0.0.1:9000`.
 
-## Updating
+### Updating
 
 Pull the latest image and restart:
 
@@ -141,7 +141,7 @@ docker compose -f docker-compose.deploy.yml exec propraetor python manage.py mig
 
 Migrations are safe to run on every update — they're a no-op if nothing has changed.
 
-## Reverse Proxy
+### Reverse Proxy
 
 Propraetor doesn't handle TLS. Point your reverse proxy at `127.0.0.1:9000` and ensure it forwards the standard headers. Examples for common setups:
 
@@ -174,7 +174,7 @@ propraetor.example.com {
 
 Make sure `CSRF_TRUSTED_ORIGINS` and `ALLOWED_HOSTS` in your `.env` match your domain, and set `SECURE_SSL_REDIRECT=True` if you're serving over HTTPS.
 
-## Running from Source
+### Running from Source
 
 For development or if you want to build the image yourself:
 
