@@ -15,7 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# collect static; runs at build time so nginx can serve them immediately
-RUN python manage.py collectstatic --noinput
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 9000
+
+ENTRYPOINT ["docker-entrypoint.sh"]
