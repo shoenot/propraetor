@@ -93,7 +93,7 @@ Every list view uses a shared, reusable table engine (`ReusableTable`):
 
 ## Deployment
 
-Propraetor is distributed as a Docker image and is designed to run behind your own reverse proxy (nginx, Caddy, Traefik, etc.). The app binds to `127.0.0.1:9000` and is never exposed directly to the network.
+Propraetor is distributed as a Docker image and is designed to run behind your own reverse proxy (nginx, Caddy, Traefik, etc.). The app binds to `127.0.0.1:9000` by default and should not be exposed directly to the internet.
 
 ### Prerequisites
 
@@ -102,11 +102,11 @@ Propraetor is distributed as a Docker image and is designed to run behind your o
 
 ### Quick Start
 
-1. **Grab the compose files**
+1. **Create a directory and grab the compose file**
 
    ```sh
-   curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/docker-compose.deploy.yml
-   curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/docker-compose.prod.yml
+   mkdir propraetor && cd propraetor
+   curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/docker-compose.yml
    curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/env.example
    ```
 
@@ -117,26 +117,36 @@ Propraetor is distributed as a Docker image and is designed to run behind your o
    $EDITOR .env
    ```
 
-   At minimum, set `SECRET_KEY` and `ALLOWED_HOSTS`. Everything else has sensible defaults.
-
-3. **Run migrations and start**
+   At minimum, set `SECRET_KEY`, `DEBUG=False`, and `ALLOWED_HOSTS`. Generate a secret key with:
 
    ```sh
-   docker compose -f docker-compose.deploy.yml -f docker-compose.prod.yml up -d
-   docker compose -f docker-compose.deploy.yml exec propraetor python manage.py migrate
-   docker compose -f docker-compose.deploy.yml exec propraetor python manage.py createsuperuser
+   python3 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
    ```
 
-Propraetor is now running on `127.0.0.1:9000`.
+   If you don't have Python installed locally, you can generate the key after the container is running:
+
+   ```sh
+   docker compose exec propraetor python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+   ```
+
+3. **Start, migrate, and create your admin user**
+
+   ```sh
+   docker compose up -d
+   docker compose exec propraetor python manage.py migrate
+   docker compose exec propraetor python manage.py createsuperuser
+   ```
+
+Propraetor is now running on `127.0.0.1:9000`. Point your reverse proxy at it and you're done.
 
 ### Updating
 
 Pull the latest image and restart:
 
 ```sh
-docker compose -f docker-compose.deploy.yml -f docker-compose.prod.yml pull
-docker compose -f docker-compose.deploy.yml -f docker-compose.prod.yml up -d
-docker compose -f docker-compose.deploy.yml exec propraetor python manage.py migrate
+docker compose pull
+docker compose up -d
+docker compose exec propraetor python manage.py migrate
 ```
 
 Migrations are safe to run on every update — they're a no-op if nothing has changed.
@@ -183,7 +193,7 @@ For development or if you want to build the image yourself:
    ```sh
    git clone https://github.com/shoenot/propraetor.git
    cd propraetor
-   cp .env.example .env
+   cp env.example .env
    ```
 
 2. **Start the dev server** (hot reload, no gunicorn)
@@ -194,13 +204,54 @@ For development or if you want to build the image yourself:
 
    The app is available at `http://localhost:9000`. Static files are served by Django's dev server so no collectstatic step is needed.
 
-3. **Or build and run with gunicorn** (production-like, from source)
+3. **Run migrations and create an admin user** (in a separate terminal)
 
    ```sh
-   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+   docker compose exec propraetor python manage.py migrate
+   docker compose exec propraetor python manage.py createsuperuser
    ```
 
-A `Makefile` is included with shortcuts for all of the above — run `make` or check the file for available targets.
+A `Makefile` is included with shortcuts for all of the above — run `make dev` for development or check the file for available targets.
+
+### Without Docker
+
+If you prefer running directly on the host:
+
+```sh
+git clone https://github.com/shoenot/propraetor.git
+cd propraetor
+
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+
+pip install -r requirements.txt
+cp env.example .env
+# Edit .env — set SECRET_KEY at minimum
+
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py collectstatic --noinput
+```
+
+For development, use the Django dev server:
+
+```sh
+python manage.py runserver
+```
+
+For production, use Gunicorn:
+
+```sh
+gunicorn core.wsgi:application \
+    --bind 127.0.0.1:8000 \
+    --workers 3 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile -
+```
+
+Static files are served by WhiteNoise (included and pre-configured), so no separate static file server is required — though you can point nginx at your `staticfiles/` directory for higher throughput if desired.
+
 ---
 
 ## Configuration
@@ -232,7 +283,7 @@ The config file is hot-reloaded (mtime-checked on every call). Edits take effect
 
 SQLite is the default and is adequate for small-to-medium deployments. It's a single file, backups are a copy operation, and there's no database server to maintain.
 
-For PostgreSQL or MySQL, set `DATABASE_URL` in your `.env` and install the appropriate driver:
+For PostgreSQL or MySQL, set `DATABASE_URL` in your `.env` and install the appropriate driver (or uncomment the relevant line in `requirements.txt` before building):
 
 ```bash
 pip install psycopg2-binary   # PostgreSQL
@@ -240,12 +291,6 @@ pip install mysqlclient        # MySQL / MariaDB
 ```
 
 The `DATABASE_URL` is parsed automatically — scheme maps to the correct Django backend (`postgres://` → `postgresql`, `mysql://` → `mysql`, `sqlite://` → `sqlite3`).
-
-## Deployment
-
-A comprehensive deployment guide using gunicorn is currently in the works.
-
-Static files are served in production by WhiteNoise (included in `requirements.txt` and pre-configured in middleware/storage settings), or by your web server directly for higher throughput.
 
 ---
 
