@@ -150,7 +150,7 @@ if _database_url:
     DATABASES = {
         "default": {
             "ENGINE": _ENGINE_MAP.get(_parsed.scheme, "django.db.backends.postgresql"),
-            "NAME": _parsed.path.lstrip("/") or "propraetor",
+            "NAME": _parsed.path if _parsed.scheme == "sqlite" else (_parsed.path.lstrip("/") or "propraetor"),
             "USER": _parsed.username or "",
             "PASSWORD": _parsed.password or "",
             "HOST": _parsed.hostname or "localhost",
