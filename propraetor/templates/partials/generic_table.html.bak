@@ -1,0 +1,36 @@
+<input type="hidden" name="sort" value="{{ current_sort }}">
+
+<div class="table-header">
+    <h2>{{ table_title }}</h2>
+    <p id="table-count-summary">
+        Showing {{ items.end_index }} of {{ items.paginator.count }} total results.
+    </p>
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            {% for header in headers %}
+            <th>
+                {% if header.sort_key %}
+                    <button class="sort-link" 
+                            hx-get="{{ rows_url }}?sort={{ header.next_sort }}" 
+                            hx-target="#table-container" 
+                            hx-include="[name='q'], [name='status']">
+                        {{ header.label }}
+                        {% if header.is_current %}
+                            {% if header.direction == 'up' %}↑{% else %}↓{% endif %}
+                        {% endif %}
+                    </button>
+                {% else %}
+                    {{ header.label }}
+                {% endif %}
+            </th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody id="table-body">
+        {% include 'partials/table_row_loop.html' %}
+    </tbody>
+</table>

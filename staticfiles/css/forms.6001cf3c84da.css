@@ -1,0 +1,680 @@
+/* ============================================
+   Form Layout
+   ============================================ */
+
+.form-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.form-header {
+    margin-bottom: 32px;
+}
+
+.form-header h1 {
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.form-breadcrumb {
+    color: var(--muted-foreground);
+    margin-bottom: 24px;
+}
+
+.form-breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.form-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   Form Card (mirrors detail-card)
+   ============================================ */
+
+.form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+}
+
+.form-card-title {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    margin: 0;
+}
+
+.form-card-content {
+    padding: 16px;
+}
+
+/* ============================================
+   Form Grid
+   ============================================ */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.form-grid .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Single-column compact variant of form-grid */
+.form-grid-compact {
+    grid-template-columns: 1fr;
+}
+
+@media (max-width: 600px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   Form Stack (vertical form layout with gaps)
+   ============================================ */
+
+.form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ============================================
+   Form Groups (mirrors field-group)
+   ============================================ */
+
+.form-group {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    color: var(--muted-foreground);
+    margin-bottom: 6px;
+    font-size: 12px;
+    text-transform: lowercase;
+}
+
+.form-group label .required-mark {
+    color: var(--destructive);
+    margin-left: 2px;
+}
+
+/* ============================================
+   Form Inputs
+   ============================================ */
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    background: var(--input-background);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: var(--primary);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.6;
+}
+
+/* Select styling */
+.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 32px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23536a8a' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+}
+
+.form-select option {
+    background: var(--card);
+    color: var(--foreground);
+}
+
+/* Textarea */
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+/* Date inputs */
+.form-input[type="date"] {
+    color-scheme: dark;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5) sepia(1) saturate(3) hue-rotate(190deg);
+    cursor: pointer;
+}
+
+/* Number inputs - hide spinners */
+.form-input[type="number"]::-webkit-inner-spin-button,
+.form-input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0.3;
+}
+
+/* Checkbox */
+.form-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--input-background);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    position: relative;
+    vertical-align: middle;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.form-checkbox:checked {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.form-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: solid var(--primary-foreground);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.form-checkbox:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+/* ============================================
+   Validation & Errors
+   ============================================ */
+
+.form-input.is-invalid,
+.form-select.is-invalid,
+.form-textarea.is-invalid {
+    border-color: var(--destructive);
+}
+
+.form-error {
+    color: var(--destructive);
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+.form-errors-banner {
+    background: rgba(212, 24, 61, 0.1);
+    border: 1px solid var(--destructive);
+    color: var(--destructive);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+}
+
+.form-errors-banner ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.form-errors-banner li {
+    padding: 2px 0;
+}
+
+.form-errors-banner li::before {
+    content: '> ';
+    color: var(--destructive);
+}
+
+/* ============================================
+   Form Help Text
+   ============================================ */
+
+.form-help {
+    color: var(--muted-foreground);
+    font-size: 11px;
+    margin-top: 4px;
+    display: block;
+    opacity: 0.8;
+}
+
+/* ============================================
+   Form Actions (footer)
+   ============================================ */
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+}
+
+.form-actions .btn {
+    min-width: 120px;
+    justify-content: center;
+}
+
+
+
+/* ============================================
+   Success Message
+   ============================================ */
+
+.form-success-banner {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--chart-2);
+    color: var(--chart-2);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+}
+
+/* ============================================
+   Conditional field visibility (for JS toggle)
+   ============================================ */
+
+.form-conditional {
+    display: none;
+}
+
+.form-conditional.visible {
+    display: block;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 768px) {
+    .form-page {
+        padding: 0 8px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .form-actions .btn {
+        min-width: unset;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-card-content {
+        padding: 12px;
+    }
+
+    .form-card-title {
+        padding: 10px 12px;
+    }
+}
+
+/* ============================================
+   Searchable Select (ss-*)
+   ============================================ */
+
+.ss-container {
+    position: relative;
+    width: 100%;
+}
+
+/* The original <select> is hidden; the search input takes its place */
+.ss-container .ss-search {
+    width: 100%;
+    cursor: text;
+    padding-right: 32px;          /* room for clear button */
+    text-overflow: ellipsis;
+}
+
+.ss-container .ss-search::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.6;
+}
+
+.ss-container .ss-search:focus {
+    border-color: var(--primary);
+}
+
+/* Clear button */
+.ss-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--muted-foreground);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 4px;
+    display: none;                 /* JS shows it when a value is set */
+    z-index: 2;
+}
+
+.ss-clear:hover {
+    color: var(--foreground);
+}
+
+/* Dropdown panel */
+.ss-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Individual option */
+.ss-option {
+    padding: 7px 12px;
+    font-size: 13px;
+    color: var(--foreground);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.ss-option:hover,
+.ss-option.ss-highlighted {
+    background: var(--secondary);
+    color: var(--primary);
+}
+
+.ss-option mark {
+    background: none;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Hint / info line (e.g. "type 2+ chars", "no results", "showing N of M") */
+.ss-hint {
+    padding: 7px 12px;
+    font-size: 12px;
+    color: var(--muted-foreground);
+    font-style: italic;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.ss-hint.ss-error {
+    color: var(--destructive);
+}
+
+/* Scrollbar inside dropdown */
+.ss-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ss-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ss-dropdown::-webkit-scrollbar-thumb {
+    background: var(--border);
+}
+
+.ss-dropdown::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+}
+
+/* ============================================
+   Inline-Create Modal (ic-*)
+   ============================================ */
+
+/* Overlay – covers the full viewport, supports stacking */
+.ic-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.ic-overlay.ic-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal box */
+.ic-modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    width: 92%;
+    max-width: 680px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.15s ease;
+}
+
+.ic-visible .ic-modal {
+    transform: scale(1) translateY(0);
+}
+
+/* Header */
+.ic-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.ic-modal-title {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.ic-modal-close {
+    background: none;
+    border: none;
+    color: var(--muted-foreground);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 6px;
+    transition: color 0.15s;
+}
+
+.ic-modal-close:hover {
+    color: var(--foreground);
+}
+
+/* Body (scrollable form area) */
+.ic-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    /* Allow extra breathing room at the bottom so the last dropdown
+       doesn't get fully clipped by the scroll boundary. */
+    padding-bottom: 40px;
+}
+
+/* Searchable-select dropdowns inside the modal need a high z-index so
+   they render above sibling form fields and the modal footer. */
+.ic-modal-body .ss-dropdown {
+    z-index: 100;
+}
+
+/* Loading / error states */
+.ic-loading {
+    color: var(--muted-foreground);
+    font-size: 13px;
+    font-style: italic;
+    text-align: center;
+    padding: 32px 16px;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.ic-loading.ic-error {
+    color: var(--destructive);
+}
+
+/* Footer */
+.ic-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.ic-modal-footer .btn {
+    min-width: 100px;
+    justify-content: center;
+}
+
+/* Scrollbar inside modal body */
+.ic-modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ic-modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ic-modal-body::-webkit-scrollbar-thumb {
+    background: var(--border);
+}
+
+.ic-modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+}
+
+/* Form grid inside modal – ensure it works within the modal context */
+.ic-modal-body .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.ic-modal-body .form-grid .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* The [+] button injected into ss-container */
+.ic-add-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 3;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    border-radius: 3px;
+}
+
+.ic-add-btn:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: rgba(59, 130, 246, 0.08);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 600px) {
+    .ic-modal {
+        width: 96%;
+        max-height: 90vh;
+    }
+
+    .ic-modal-body .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ic-modal-header,
+    .ic-modal-body,
+    .ic-modal-footer {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .ic-modal-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .ic-modal-footer .btn {
+        min-width: unset;
+        width: 100%;
+    }
+}

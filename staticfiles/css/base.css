@@ -1,0 +1,413 @@
+/* ============================================
+   Reset
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scrollbar-gutter: stable;
+}
+
+/* ============================================
+   Typography & Body
+   ============================================ */
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    /* Define the weight range: 100 to 800 */
+    font-weight: 100 800;
+    font-style: normal;
+    font-display: swap;
+    src: url('../fonts/JetBrainsMono-VariableFont_wght.woff2') format('woff2');
+}
+
+body {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 14px;
+    background: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================
+   Layout
+   ============================================ */
+
+.container {
+    max-width: min(1400px, 99vw);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+header {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--background);
+}
+
+main {
+    padding: 32px 0;
+    flex: 1 0 auto;
+}
+
+main a {
+    text-decoration: none;
+    color: var(--primary);
+}
+
+footer {
+    flex-shrink: 0;
+    padding: 24px 0;
+    margin-top: auto;
+    text-align: center;
+    color: var(--muted-foreground);
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.header-right {
+    color: var(--muted-foreground);
+}
+
+h1 {
+    color: var(--primary);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* ============================================
+   Navigation
+   ============================================ */
+
+nav {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+nav a {
+    color: var(--foreground);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+/* Brand header link: keep clickable but not styled like a nav link */
+.brand-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.brand-link:hover,
+.brand-link:focus,
+.brand-link:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+nav a:hover,
+nav a.active {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+/* Hamburger toggle button – hidden on wide screens */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 8px 10px;
+    cursor: pointer;
+    width: 36px;
+    height: 32px;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.nav-toggle:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Three-line hamburger icon */
+.hamburger-line {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* Animate into an X when active */
+.nav-toggle.active .hamburger-line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.nav-toggle.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.active .hamburger-line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Session info inside nav – hidden on desktop */
+.nav-session {
+    display: none;
+}
+
+/* ============================================
+   Nav Dropdowns
+   ============================================ */
+
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown-toggle {
+    background: none;
+    border: none;
+    color: var(--foreground);
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s ease;
+}
+
+.nav-dropdown-toggle:hover,
+.nav-dropdown-toggle.active {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.nav-caret {
+    transition: transform 0.2s ease;
+}
+
+.nav-dropdown.open .nav-caret {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    min-width: 180px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    z-index: 200;
+    flex-direction: column;
+    box-shadow: var(--box-shadow);
+}
+
+.nav-dropdown.open .nav-dropdown-menu {
+    display: flex;
+}
+
+.nav-dropdown-menu a {
+    display: block;
+    padding: 10px 16px;
+    color: var(--foreground);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.nav-dropdown-menu a:hover,
+.nav-dropdown-menu a.active {
+    color: var(--primary);
+    background: var(--secondary);
+}
+
+/* ============================================
+   Responsive: Tablet & below
+   ============================================ */
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .header-content {
+        position: relative;
+    }
+
+    .header-left {
+        gap: 16px;
+        flex-wrap: nowrap;
+    }
+
+    /* Hide the desktop session info on mobile */
+    .header-right {
+        display: none;
+    }
+
+    /* Show session info inside the dropdown */
+    .nav-session {
+        display: block;
+        padding: 10px 16px;
+        color: var(--muted-foreground);
+        white-space: nowrap;
+    }
+
+    .nav-dropdown-menu {
+        box-shadow: none;
+        border-bottom: 1px;
+    }
+
+    /* Hide nav by default on small screens */
+    nav {
+        display: none;
+        flex-direction: column;
+        gap: 0;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        min-width: 200px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        z-index: 100;
+        margin-top: 0;
+    }
+
+    /* Show nav when toggled open */
+    nav.nav-open {
+        display: flex;
+        box-shadow: var(--box-shadow);
+    }
+
+    nav a {
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .nav-dropdown-menu a:last-child {
+        border-bottom: 1px solid var(--border);
+    }
+
+    nav a:hover,
+    nav a.active {
+        background: var(--secondary);
+    }
+
+    h1 {
+        font-size: 20px;
+        padding-left: 5px;
+    }
+
+    /* Mobile: flatten dropdowns into the vertical menu */
+    .nav-dropdown {
+        display: contents;
+    }
+
+    .nav-dropdown-toggle {
+        display: flex;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+        width: 100%;
+        justify-content: space-between;
+        color: var(--foreground);
+    }
+
+    .nav-dropdown-toggle:hover,
+    .nav-dropdown-toggle.active {
+        background: var(--secondary);
+        text-decoration: none;
+    }
+
+    .nav-dropdown-menu {
+        position: static;
+        border: none;
+        min-width: 0;
+        background: transparent;
+    }
+
+    .nav-dropdown.open .nav-dropdown-menu {
+        display: flex;
+    }
+
+    .nav-dropdown-menu a {
+        padding-left: 32px;
+        font-size: 13px;
+        color: var(--muted-foreground);
+    }
+
+    .nav-dropdown-menu a:hover,
+    .nav-dropdown-menu a.active {
+        color: var(--primary);
+    }
+
+    /* Override display:contents so toggle works properly in mobile dropdown */
+    nav.nav-open .nav-dropdown {
+        display: block;
+    }
+}
+
+/* ============================================
+   Responsive: Phone
+   ============================================ */
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 8px;
+    }
+
+    .header-content {
+        gap: 8px;
+    }
+
+    .header-left {
+        gap: 12px;
+    }
+
+    h1 {
+        font-size: 20px;
+        padding-left: 5px;
+    }
+}

@@ -1,0 +1,45 @@
+{% for asset in assets %}
+<tr>
+    <td class="text-primary">{{ asset.asset_tag }}</td>
+    <td class="text-muted">{{ asset.type }}</td>
+    <td class="text-muted">{{ asset.manufacturer }}</td>
+    <td>{{ asset.model }}</td>
+    <td>
+        {% if asset.assigned_to %}
+            {{ asset.assigned_to.email }}
+        {% else %}
+            <span class="text-muted">unassigned</span>
+        {% endif %}
+    </td>
+    <td class="text-muted">{{ asset.location }}</td>
+    <td class="{% if asset.status == 'assigned' %}text-success{% elif asset.status == 'available' %}text-warning{% elif asset.status == 'maintenance' %}text-primary{% else %}text-muted{% endif %}">
+        {{ asset.status }}
+    </td>
+    <td>
+        <!-- 
+        Asset Details Modal:
+        Django View: views.asset_detail
+        URL: path('assets/<int:pk>/detail/', views.asset_detail, name='asset_detail')
+        Returns: partials/asset_detail_modal.html
+        -->
+        <a 
+            href="#" 
+            class="link"
+            hx-get="/assets/{{ asset.id }}/detail/"
+            hx-target="#modal-container"
+            hx-swap="innerHTML"
+        >
+            details
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="8" style="text-align: center; padding: 40px;" class="text-muted">
+        No assets found
+    </td>
+</tr>
+{% endfor %}

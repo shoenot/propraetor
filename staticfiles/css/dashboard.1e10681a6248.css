@@ -1,0 +1,712 @@
+/* ============================================
+   Dashboard Layout
+   (Stats grid base styles are in components.css)
+   ============================================ */
+
+.dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding-bottom: 32px;
+}
+
+/* ============================================
+   Dashboard Sections
+   ============================================ */
+
+.dash-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dash-section-title {
+    color: var(--muted-foreground);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: lowercase;
+}
+
+/* ============================================
+   Stats Grid Overrides for Dashboard
+   ============================================ */
+
+.dashboard-layout .stats-grid {
+    margin-bottom: 0;
+}
+
+.stats-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 700px) {
+    .stats-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.dashboard-layout .stat-card {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dashboard-layout a.stat-card:hover {
+    border-color: var(--primary);
+    text-decoration: none;
+}
+
+.stat-card--compact {
+    padding: 12px 16px;
+}
+
+.stat-card--compact .stat-value {
+    font-size: 18px;
+}
+
+.stat-value--sm {
+    font-size: 18px !important;
+}
+
+/* ============================================
+   Two-Column Dashboard Grid
+   ============================================ */
+
+.dash-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .dash-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dash-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+}
+
+/* ============================================
+   Dashboard Cards
+   ============================================ */
+
+.dash-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-width: 0;
+    box-shadow: var(--box-shadow);
+}
+
+.dash-card:hover {
+    border-color: rgba(123, 163, 208, 0.3);
+}
+
+.dash-card--alert {
+    border-color: rgba(251, 191, 36, 0.25);
+}
+
+.dash-card--alert:hover {
+    border-color: rgba(251, 191, 36, 0.45);
+}
+
+/* Card Header */
+.dash-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+}
+
+.dash-card-title {
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.dash-card-badge {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    background: var(--secondary);
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.dash-card-link {
+    font-size: 12px;
+    color: var(--muted-foreground);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+
+.dash-card-link:hover {
+    color: var(--primary);
+}
+
+/* Card Body */
+.dash-card-body {
+    padding: 16px;
+}
+
+.dash-card-body--table {
+    padding: 0;
+    overflow-x: auto;
+}
+
+/* Card Footer */
+.dash-card-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+/* Empty State */
+.dash-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--muted-foreground);
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* ============================================
+   Dashboard Mini-Table
+   ============================================ */
+
+.dash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.dash-table thead {
+    background: rgba(15, 20, 32, 0.4);
+}
+
+.dash-table thead tr {
+    border-bottom: 1px solid var(--border);
+}
+
+.dash-table th {
+    padding: 10px 14px;
+    font-weight: 500;
+    font-size: 11px;
+    color: var(--muted-foreground);
+    text-align: left;
+    white-space: nowrap;
+    text-transform: lowercase;
+    letter-spacing: 0.03em;
+}
+
+.dash-table tbody tr {
+    border-bottom: 1px solid rgba(123, 163, 208, 0.07);
+    transition: background 0.15s;
+}
+
+.dash-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.dash-table tbody tr:hover {
+    background: rgba(15, 20, 32, 0.3);
+}
+
+.dash-table td {
+    padding: 10px 14px;
+    color: var(--foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.dash-table .link {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.dash-table .link:hover {
+    text-decoration: underline;
+}
+
+/* Column sizing hints */
+.col-type {
+    width: 48px;
+    text-align: center;
+}
+
+.col-time {
+    width: 110px;
+}
+
+.col-time-value {
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.col-event {
+    min-width: 140px;
+}
+
+.col-detail {
+    min-width: 80px;
+}
+
+.col-actor {
+    min-width: 80px;
+}
+
+/* NOTE: Event Type, Priority, and Maintenance Type badge styles
+   are defined in components.css (the canonical location for
+   reusable UI component styles). */
+
+/* ============================================
+   Status Bar Chart (Asset Distribution)
+   ============================================ */
+
+.status-bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.status-bar-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 40px;
+    gap: 12px;
+    align-items: center;
+}
+
+.status-bar-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--foreground);
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+}
+
+.status-dot.status-active {
+    background: var(--chart-2);
+}
+
+.status-dot.status-pending {
+    background: var(--chart-3);
+}
+
+.status-dot.status-in-repair {
+    background: var(--primary);
+}
+
+.status-dot.status-retired,
+.status-dot.status-inactive {
+    background: var(--muted-foreground);
+}
+
+.status-dot.status-disposed {
+    background: var(--destructive);
+}
+
+.status-bar-track {
+    width: 100%;
+    height: 8px;
+    background: var(--secondary);
+    overflow: hidden;
+}
+
+.status-bar-fill {
+    height: 100%;
+    transition: width 0.6s ease;
+    min-width: 2px;
+}
+
+.status-bar-fill.status-active {
+    background: var(--chart-2);
+}
+
+.status-bar-fill.status-pending {
+    background: var(--chart-3);
+}
+
+.status-bar-fill.status-in-repair {
+    background: var(--primary);
+}
+
+.status-bar-fill.status-retired,
+.status-bar-fill.status-inactive {
+    background: var(--muted-foreground);
+}
+
+.status-bar-fill.status-disposed {
+    background: var(--destructive);
+}
+
+.status-bar-value {
+    font-size: 12px;
+    color: var(--foreground);
+    text-align: right;
+    font-weight: 500;
+}
+
+.status-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ============================================
+   Spark Chart (Assets Added)
+   ============================================ */
+
+.spark-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 120px;
+    padding-bottom: 0;
+}
+
+.spark-bar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.spark-bar {
+    width: 100%;
+    min-height: 3px;
+    background: var(--primary);
+    opacity: 0.7;
+    transition: opacity 0.2s, height 0.4s ease;
+}
+
+.spark-bar-wrapper:hover .spark-bar {
+    opacity: 1;
+}
+
+.spark-label {
+    font-size: 10px;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.spark-count {
+    font-size: 11px;
+    color: var(--foreground);
+    font-weight: 500;
+    order: -1;
+}
+
+/* ============================================
+   Alert Lists (Warranty, Low Stock)
+   ============================================ */
+
+.alert-count {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 1px 7px;
+    border: 1px solid;
+    margin-left: 4px;
+}
+
+.alert-count.text-danger {
+    border-color: rgba(212, 24, 61, 0.3);
+    background: rgba(212, 24, 61, 0.08);
+}
+
+.alert-count.text-warning {
+    border-color: rgba(251, 191, 36, 0.3);
+    background: rgba(251, 191, 36, 0.08);
+}
+
+.alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.alert-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(123, 163, 208, 0.07);
+    gap: 12px;
+    font-size: 12px;
+}
+
+.alert-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.alert-item:first-child {
+    padding-top: 0;
+}
+
+.alert-item-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.alert-item-left .link {
+    flex-shrink: 0;
+}
+
+.alert-item-left .text-muted {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.alert-item-right {
+    flex-shrink: 0;
+}
+
+.warranty-date,
+.stock-indicator {
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* ============================================
+   Component Health Grid
+   ============================================ */
+
+.health-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    text-align: center;
+}
+
+.health-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 8px;
+    background: var(--secondary);
+    border: 1px solid rgba(123, 163, 208, 0.08);
+    transition: border-color 0.2s;
+}
+
+.health-item:hover {
+    border-color: var(--border);
+}
+
+.health-value {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+.health-label {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    text-transform: lowercase;
+}
+
+/* ============================================
+   Quick Navigation
+   ============================================ */
+
+.quick-nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.quick-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--secondary);
+    border: 1px solid rgba(123, 163, 208, 0.08);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+}
+
+.quick-nav-item:hover {
+    border-color: var(--primary);
+    background: rgba(59, 130, 246, 0.04);
+}
+
+.quick-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.quick-nav-item:hover .quick-nav-icon {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+}
+
+.quick-nav-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.quick-nav-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.quick-nav-count {
+    font-size: 11px;
+    color: var(--muted-foreground);
+}
+
+/* ============================================
+   Responsive: Tablet
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .dash-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .status-bar-row {
+        grid-template-columns: 90px 1fr 36px;
+    }
+}
+
+/* ============================================
+   Responsive: Mobile
+   ============================================ */
+
+@media (max-width: 600px) {
+    .dashboard-layout {
+        gap: 20px;
+    }
+
+    .dash-card-header {
+        padding: 10px 12px;
+    }
+
+    .dash-card-body {
+        padding: 12px;
+    }
+
+    .dash-table th,
+    .dash-table td {
+        padding: 8px 10px;
+    }
+
+    .quick-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .health-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .health-item {
+        padding: 10px 6px;
+    }
+
+    .health-value {
+        font-size: 18px;
+    }
+
+    .alert-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .status-bar-row {
+        grid-template-columns: 80px 1fr 30px;
+        gap: 8px;
+    }
+
+    .spark-chart {
+        height: 90px;
+    }
+
+    .dash-card-footer {
+        padding: 8px 12px;
+        flex-wrap: wrap;
+    }
+
+    .stats-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================
+   Scrollbar for dash tables
+   ============================================ */
+
+.dash-card-body--table::-webkit-scrollbar {
+    height: 6px;
+}
+
+.dash-card-body--table::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+.dash-card-body--table::-webkit-scrollbar-thumb {
+    background: var(--border);
+}
+
+.dash-card-body--table::-webkit-scrollbar-thumb:hover {
+    background: rgba(123, 163, 208, 0.4);
+}

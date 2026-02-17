@@ -1,0 +1,73 @@
+/* ==========================================================================
+   Column Width Classes – centralised for easy tweaking
+   Each class is applied to <th> (and inherits to <td>) via the `width`
+   attribute on TableColumn.  Adjust the widths here instead of hunting
+   through individual view files.
+   ========================================================================== */
+
+/* ── Checkbox column ───────────────────────────────────────────────────── */
+.checkbox-col      { width: 1rem; min-width: 1rem;
+                     padding-left: 8px; padding-right 8px; }
+
+/* ── Names & labels (people, companies, vendors, models …) ─────────────── */
+.name-col          { width: 14rem; min-width: 10rem; }
+
+/* ── IDs / tags ────────────────────────────────────────────────────────── */
+.tag-col           { width: 5rem;  min-width: 5rem;  }
+.id-col            { width: 7rem;  min-width: 5rem;  }
+
+/* ── Org structure ─────────────────────────────────────────────────────── */
+.company-col       { width: 6rem;  min-width: 4.5rem; }
+.department-col    { width: 8rem;  min-width: 6rem;  }
+.location-col      { width: 9rem;  min-width: 6rem;  }
+.category-col      { width: 9rem;  min-width: 6rem;  }
+.code-col          { width: 5rem;  min-width: 3.5rem; }
+
+/* ── Contact info ──────────────────────────────────────────────────────── */
+.phone-col         { width: 8rem;  min-width: 6rem;  }
+.email-col         { width: 14rem; min-width: 10rem; }
+.contact-col       { width: 10rem; min-width: 7rem;  }
+.website-col       { width: 12rem; min-width: 8rem;  }
+.address-col       { width: 14rem; min-width: 9rem;  }
+.city-col          { width: 8rem;  min-width: 5rem;  }
+.country-col       { width: 8rem;  min-width: 5rem;  }
+.zipcode-col       { width: 5rem;  min-width: 3.5rem; }
+
+/* ── Position / role ───────────────────────────────────────────────────── */
+.position-col      { width: 8rem;  min-width: 5rem;  }
+
+/* ── Asset / component details ─────────────────────────────────────────── */
+.model-col         { width: 10rem; min-width: 7rem;  }
+.model-num-col     { width: 8rem;  min-width: 6rem;  }
+.manufacturer-col  { width: 10rem; min-width: 7rem;  }
+.serial-col        { width: 10rem; min-width: 7rem;  }
+.type-col          { width: 9rem;  min-width: 6rem;  }
+.description-col   { width: 16rem; min-width: 10rem; }
+.priority-col      { width: 7rem;  min-width: 5rem;  }
+
+/* ── Counts (assets, users, depts, models …) ───────────────────────────── */
+.count-col         { width: 5.5rem; min-width: 4rem; }
+
+/* ── Quantities ────────────────────────────────────────────────────────── */
+.qty-col           { width: 6rem;  min-width: 4.5rem; }
+
+/* ── Status / badge columns ────────────────────────────────────────────── */
+.status-badge-col  { width: 9rem;  min-width: 9rem;  }
+.payment-col       { width: 7.5rem; min-width: 5.5rem; }
+
+/* ── Money / cost ──────────────────────────────────────────────────────── */
+.money-col         { width: 7rem;  min-width: 5rem;  }
+
+/* ── Dates & timestamps ────────────────────────────────────────────────── */
+.date-col          { width: 7.5rem; min-width: 6rem; }
+.datetime-col      { width: 10rem; min-width: 8rem;  }
+
+/* ── Invoice / requisition numbers ─────────────────────────────────────── */
+.invoice-num-col   { width: 8rem;  min-width: 6rem;  }
+.req-num-col       { width: 8rem;  min-width: 6rem;  }
+
+/* ── Activity log specific ─────────────────────────────────────────────── */
+.event-type-col    { width: 3rem;  min-width: 2.5rem; }
+.event-col         { width: 18rem; min-width: 12rem; }
+.detail-col        { width: 10rem; min-width: 7rem;  }
+.actor-col         { width: 8rem;  min-width: 5rem;  }

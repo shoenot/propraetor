@@ -91,41 +91,116 @@ Every list view uses a shared, reusable table engine (`ReusableTable`):
 
 ---
 
+# Deployment
+
+Propraetor is distributed as a Docker image and is designed to run behind your own reverse proxy (nginx, Caddy, Traefik, etc.). The app binds to `127.0.0.1:9000` and is never exposed directly to the network.
+
+## Prerequisites
+
+- Docker 24+ with the Compose plugin (`docker compose`, not `docker-compose`)
+- A reverse proxy configured to forward traffic to `127.0.0.1:9000`
+
 ## Quick Start
 
-**Prerequisites:** Python 3.10+, pip, git
+1. **Grab the compose files**
 
-```bash
-git clone https://github.com/shoenot/propraetor.git
-cd propraetor
+   ```sh
+   curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/docker-compose.deploy.yml
+   curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/docker-compose.prod.yml
+   curl -O https://raw.githubusercontent.com/shoenot/propraetor/main/.env.example
+   ```
 
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+2. **Configure your environment**
 
-pip install -r requirements.txt
+   ```sh
+   cp .env.example .env
+   $EDITOR .env
+   ```
+
+   At minimum, set `SECRET_KEY` and `ALLOWED_HOSTS`. Everything else has sensible defaults.
+
+3. **Run migrations and start**
+
+   ```sh
+   docker compose -f docker-compose.deploy.yml -f docker-compose.prod.yml up -d
+   docker compose -f docker-compose.deploy.yml exec propraetor python manage.py migrate
+   docker compose -f docker-compose.deploy.yml exec propraetor python manage.py createsuperuser
+   ```
+
+Propraetor is now running on `127.0.0.1:9000`.
+
+## Updating
+
+Pull the latest image and restart:
+
+```sh
+docker compose -f docker-compose.deploy.yml -f docker-compose.prod.yml pull
+docker compose -f docker-compose.deploy.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.deploy.yml exec propraetor python manage.py migrate
 ```
 
-### Configure
+Migrations are safe to run on every update — they're a no-op if nothing has changed.
 
-Copy the environment template and edit it:
+## Reverse Proxy
 
-```bash
-cp env.example .env
-# Edit .env — at minimum, set SECRET_KEY for production
+Propraetor doesn't handle TLS. Point your reverse proxy at `127.0.0.1:9000` and ensure it forwards the standard headers. Examples for common setups:
+
+**nginx**
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name propraetor.example.com;
+
+    # your TLS config here
+
+    location / {
+        proxy_pass http://127.0.0.1:9000;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 ```
 
-For local development, the defaults work out of the box (`DEBUG=True`, SQLite database).
+**Caddy**
 
-### Initialize
-
-```bash
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
+```caddy
+propraetor.example.com {
+    reverse_proxy 127.0.0.1:9000
+}
 ```
 
-Then open `http://localhost:8000`.
+Make sure `CSRF_TRUSTED_ORIGINS` and `ALLOWED_HOSTS` in your `.env` match your domain, and set `SECURE_SSL_REDIRECT=True` if you're serving over HTTPS.
 
+## Running from Source
+
+For development or if you want to build the image yourself:
+
+1. **Clone the repo**
+
+   ```sh
+   git clone https://github.com/shoenot/propraetor.git
+   cd propraetor
+   cp .env.example .env
+   ```
+
+2. **Start the dev server** (hot reload, no gunicorn)
+
+   ```sh
+   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+   ```
+
+   The app is available at `http://localhost:9000`. Static files are served by Django's dev server so no collectstatic step is needed.
+
+3. **Or build and run with gunicorn** (production-like, from source)
+
+   ```sh
+   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+   ```
+
+A `Makefile` is included with shortcuts for all of the above — run `make` or check the file for available targets.
 ---
 
 ## Configuration

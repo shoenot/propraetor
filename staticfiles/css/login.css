@@ -1,0 +1,90 @@
+/* ============================================
+   Login Page
+   ============================================ */
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 0 24px;
+}
+
+body.login-page {
+    align-items: center;
+    justify-content: center;
+}
+
+.login-header {
+    margin-bottom: 32px;
+}
+
+.login-header h1 {
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.login-header p {
+    color: var(--muted-foreground);
+    font-size: 13px;
+}
+
+.login-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+/* Login-specific form group overrides */
+.login-card .form-group {
+    margin-bottom: 16px;
+}
+
+.login-card .form-group:last-of-type {
+    margin-bottom: 24px;
+}
+
+.login-card .form-input {
+    padding: 10px 12px;
+}
+
+.login-card .form-input::placeholder {
+    opacity: 0.5;
+}
+
+.btn-login {
+    width: 100%;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: none;
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-login:hover {
+    opacity: 0.9;
+}
+
+.error-banner {
+    background: rgba(212, 24, 61, 0.1);
+    border: 1px solid var(--destructive);
+    color: var(--destructive);
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.error-banner::before {
+    content: '> ';
+}
+
+.login-footer {
+    text-align: center;
+    color: var(--muted-foreground);
+    font-size: 12px;
+}

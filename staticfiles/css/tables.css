@@ -1,0 +1,349 @@
+/* ============================================
+   Table Container
+   ============================================ */
+
+.table-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+/* ============================================
+   Table Header
+   ============================================ */
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.table-header-left h2 {
+    color: var(--primary);
+    font-size: 12px;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.table-header-left p {
+    color: var(--muted-foreground);
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+.table-header-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* ============================================
+   Column Toggle
+   ============================================ */
+
+.column-toggle-container {
+    position: relative;
+}
+
+.column-toggle-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    min-width: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    padding: 8px 0;
+}
+
+.column-toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.column-toggle-item:hover {
+    background: rgba(15, 20, 32, 0.3);
+}
+
+.column-toggle-item input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+}
+
+.column-toggle-item span {
+    font-size: 14px;
+    color: var(--foreground);
+}
+
+/* ============================================
+   Bulk Actions
+   ============================================ */
+
+.bulk-actions-container {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bulk-selected-count {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+/* ============================================
+   Table Wrapper
+   ============================================ */
+
+.table-wrapper {
+    overflow-x: auto;
+    font-size: 12px;
+}
+
+/* ============================================
+   Data Table
+   ============================================ */
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.data-table thead {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+    padding: 12px 16px;
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--foreground);
+    white-space: nowrap;
+    min-width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.data-table th.text-center {
+    text-align: center;
+    padding: 12px 16px;
+}
+
+.data-table th.text-right {
+    text-align: right;
+    padding: 12px 16px;
+}
+
+.data-table th.text-left {
+    text-align: left;
+    padding: 12px 16px;
+}
+
+/* ============================================
+   Sort Controls
+   ============================================ */
+
+.sort-link {
+    background: none;
+    border: none;
+    color: var(--foreground);
+    font: inherit;
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+}
+
+.sort-link:hover {
+    color: var(--muted-foreground);
+}
+
+.sort-icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* ============================================
+   Table Body
+   ============================================ */
+
+.data-table tbody tr {
+    border-bottom: 1px solid rgba(123, 163, 208, 0.1);
+    transition: background 0.2s;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background: rgba(15, 20, 32, 0.1);
+}
+
+.data-table tbody tr:hover {
+    background: rgba(15, 20, 32, 0.3);
+}
+
+.data-table td {
+    padding: 12px 16px;
+    min-width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.data-table td.text-center {
+    text-align: center;
+}
+
+.data-table td.text-right {
+    text-align: right;
+}
+
+/* Checkboxes */
+.data-table input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+}
+
+/* Links */
+.data-table .link {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.data-table .link:hover {
+    text-decoration: underline;
+}
+
+/* Empty State */
+.data-table tbody tr td[colspan] {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted-foreground);
+    font-style: italic;
+}
+
+.name-column {
+    width: 200px;
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+.table-wrapper::-webkit-scrollbar,
+.column-toggle-dropdown::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track,
+.column-toggle-dropdown::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb,
+.column-toggle-dropdown::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover,
+.column-toggle-dropdown::-webkit-scrollbar-thumb:hover {
+    background: rgba(123, 163, 208, 0.4);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .data-table {
+        table-layout: auto;
+        min-width: 1200px;
+    }
+}
+
+@media (min-width: 800px) {
+    .data-table th {
+        font-size: 14px;
+        min-width: 80px;
+    }
+    .data-table thead th {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .table-header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .bulk-actions-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .data-table {
+        font-size: 12px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 8px;
+    }
+
+    .data-table th.text-left {
+        text-align: left;
+        padding: 12px 8px;
+    }
+
+    .data-table th.text-right {
+        text-align: right;
+        padding: 12px 8px;
+    }
+
+    .data-table th.text-center {
+        text-align: center;
+        padding: 12px 8px;
+    }
+}
