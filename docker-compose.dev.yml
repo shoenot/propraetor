@@ -1,10 +1,18 @@
 services:
   propraetor:
+    build: .
     command: python manage.py runserver 0.0.0.0:9000
+    ports:
+      - "9000:9000"
     volumes:
-      - .:/app                       # mount source for hot reload
+      - .:/app
       - sqlite_data:/app/db
       - static_files:/app/staticfiles
       - media_files:/app/media
-    ports:
-      - "9000:9000"                  # direct access, skip nginx in dev
+    env_file:
+      - .env
+
+volumes:
+  sqlite_data:
+  static_files:
+  media_files:
