@@ -89,7 +89,7 @@ class Employee(models.Model):
         ("inactive", "Inactive"),
     ]
 
-    employee_id = models.CharField(max_length=100, unique=True, default="", blank=True, null=True)
+    employee_id = models.CharField(max_length=100, unique=True, default=None, blank=True, null=True)
     name = models.CharField(max_length=255)
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=50, default="", blank=True)
