@@ -37,6 +37,13 @@ def assets_list(request):
             width="category-col",
         ),
         TableColumn(
+            "serial_number",
+            "SN",
+            "serial_number",
+            width="model-col",
+            default_visible=False
+        ),
+        TableColumn(
             "assigned_to",
             "ASSIGNED_TO",
             "assigned_to.name",
