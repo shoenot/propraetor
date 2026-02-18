@@ -4,4 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "django>=5.0,<6.0",
+    "django-htmx>=1.17,<2.0",
+    "gunicorn>=22.0,<24.0",
+    "python-dotenv==1.2.1",
+    "whitenoise>=6.5,<7.0",
+]

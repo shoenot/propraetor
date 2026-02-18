@@ -23,7 +23,7 @@ def users_list(request):
             "name",
             "NAME",
             "name",
-            link_pattern=url_pattern("propraetor:user_details", user_id="employee_id"),
+            link_pattern=url_pattern("propraetor:user_details", user_id="pk"),
             width="name-col",
         ),
         TableColumn("employee_id", "EMP_ID", "employee_id", width="id-col"),
